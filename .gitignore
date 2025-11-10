@@ -1,4 +1,3 @@
-.claude/
 /.claude/*.local.json
 
 # Devcontainer persistence
