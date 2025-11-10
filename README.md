@@ -1,4 +1,4 @@
-# X: OCFL Doctor
+# OCFL Doctor
 
 This is an experiment: Can we use Claude Code as an agent to debug and
 facilitate repair of invalid OCFL objects?
