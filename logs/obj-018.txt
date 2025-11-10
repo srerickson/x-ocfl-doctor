@@ -1,0 +1,109 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: urn:example-2
+Object Path: /workspace/objects/obj-018
+Validation Status: INVALID
+Date: 2025-11-09
+
+================================================================================
+VALIDATION ERRORS SUMMARY
+================================================================================
+
+Two critical validation errors were detected:
+
+1. ERROR CODE E096: Digest Conflict
+   - Description: Digest conflict for manifest entry
+   - Digest: 24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28
+   - Issue: This digest appears in the manifest with two different case variations
+
+2. ERROR CODE E107: Unused Manifest Digest
+   - Description: Digest in manifest not used in version state
+   - Digest: 24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28 (uppercase)
+   - Issue: The uppercase variant of the digest is in the manifest but is never referenced in any version state
+
+================================================================================
+DETAILED ANALYSIS
+================================================================================
+
+ROOT CAUSE:
+The inventory.json file contains a critical data integrity issue: the manifest
+object has two digest entries for the same file (v1/content/test.txt), with
+the digest values differing only in case (lowercase vs. uppercase).
+
+Manifest entries (Lines 8-13 of inventory.json):
+  - Entry 1 (lowercase): "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28"
+  - Entry 2 (uppercase): "24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28"
+
+Version v1 state (Line 19):
+  - Only references the lowercase digest: "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28"
+
+OCFL SPECIFICATION VIOLATIONS:
+According to the OCFL specification:
+1. Manifest digests MUST be lowercase hexadecimal
+2. Each digest in the manifest should appear in at least one version state
+3. Digest conflict: The presence of both case variations violates the digest
+   integrity requirement
+
+FILE VERIFICATION:
+The actual file /workspace/objects/obj-018/v1/content/test.txt has been
+verified:
+  - Content: "testing\n"
+  - Actual SHA512 checksum: 24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28
+  - Status: Matches the lowercase digest variant
+
+OBJECT STRUCTURE:
+  ├── 0=ocfl_object_1.1 (declaration file)
+  ├── inventory.json (CORRUPTED - contains duplicate digests)
+  ├── inventory.json.sha512 (checksum file)
+  └── v1/ (version directory)
+      ├── content/
+      │   └── test.txt (file with correct content)
+      └── inventory.json
+
+================================================================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+================================================================================
+
+SOLUTION: Remove the uppercase digest entry from the manifest
+
+Step 1: Edit the inventory.json file
+   - Locate the manifest section (lines 7-14)
+   - Delete the duplicate entry with the uppercase digest variant
+   - Keep only the lowercase variant since:
+     * It's the OCFL specification requirement
+     * It matches the actual file's checksum
+     * It's referenced in the version state
+
+Step 2: Remove the uppercase digest entry
+   Current manifest:
+   {
+     "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28": [
+       "v1/content/test.txt"
+     ],
+     "24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28": [
+       "v1/content/test.txt"
+     ]
+   }
+
+   Should become:
+   {
+     "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28": [
+       "v1/content/test.txt"
+     ]
+   }
+
+Step 3: Verify the fix
+   - Run: ocfl validate --object=/workspace/objects/obj-018
+   - Expected result: Validation should pass with no errors
+
+Step 4: Verify integrity (optional but recommended)
+   - Run: sha512sum -c /workspace/objects/obj-018/inventory.json.sha512
+   - Update the sha512 checksum file if the inventory.json has been modified
+
+IMPACT ASSESSMENT:
+- Risk Level: Low
+- Data Loss: None (all original content is preserved)
+- Action Required: Yes (object cannot be used until fixed)
+- Affected Files: Only inventory.json needs modification
+- Version Data: Intact and correct
+
+================================================================================

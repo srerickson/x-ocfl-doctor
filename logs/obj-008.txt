@@ -1,0 +1,82 @@
+OCFL OBJECT VALIDATION REPORT: obj-008
+======================================
+
+VALIDATION STATUS: INVALID
+
+VALIDATION ERROR DETAILS
+------------------------
+Error Code: E010
+Error Message: missing version in version sequence: v2
+Location: root inventory.json
+Object Path: /workspace/objects/obj-008
+
+SUMMARY OF ISSUES
+-----------------
+The OCFL object validation has identified a critical error in the version sequence.
+The inventory.json file declares versions v1, v4, v5, v7, and v8, but is missing
+versions v2, v3, and v6 in the sequence.
+
+DETAILED ANALYSIS
+-----------------
+1. MISSING VERSIONS IN SEQUENCE:
+   - The root inventory.json contains version definitions for: v1, v4, v5, v7, v8
+   - Missing versions: v2, v3, v6
+   - Expected sequence: v1, v2, v3, v4, v5, v6, v7, v8 (continuous)
+   - Actual sequence: v1, v4, v5, v7, v8 (gaps at positions 2, 3, and 6)
+
+2. OCFL SPECIFICATION VIOLATION:
+   According to the OCFL specification, versions must form a continuous sequence
+   starting from v1. Each subsequent version must be sequentially numbered without gaps.
+
+   The error "missing version in version sequence: v2" indicates that the validator
+   checked for v2 after finding v1, but v2 does not exist in the object structure.
+
+3. PHYSICAL VS. LOGICAL STRUCTURE:
+   - Physical directories present: v1/, v4/, v5/, v7/, v8/
+   - Logical versions declared: v1, v4, v5, v7, v8 (in inventory.json)
+   - The inventory.json correctly references only the existing versions, but this
+     violates the OCFL requirement for continuous version numbering.
+
+4. IMPACT:
+   - This object cannot be validated as a compliant OCFL object
+   - The object cannot be trusted for long-term preservation purposes
+   - Potential data loss if this object is processed by OCFL-compliant tools
+
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+----------------------------------------
+Option 1: RESTORE MISSING VERSIONS (Preferred if possible)
+   - Recover version directories v2, v3, and v6 if they exist in backups
+   - Restore the missing inventory.json and inventory.json.sha512 files
+   - Ensure all version directories have proper inventory files and content
+   - Re-validate after restoration
+
+Option 2: REBUILD INVENTORY WITH PLACEHOLDER VERSIONS (If recovery is impossible)
+   - Create placeholder version directories v2, v3, and v6
+   - Each directory should contain:
+     * An inventory.json file with a valid version entry
+     * An inventory.json.sha512 file with proper digest
+   - The missing versions should be inserted with appropriate:
+     * created timestamps (between adjacent versions)
+     * state entries (can be identical to previous version or empty)
+     * message and user information
+   - After rebuilding, re-validate the object
+
+Option 3: CONTACT PRESERVATION TEAM
+   - If this object is critical, contact your OCFL preservation team
+   - Investigate how versions v2, v3, and v6 were deleted or lost
+   - Determine if there's a systematic issue affecting other objects
+   - Review backup/archival procedures to prevent future occurrences
+
+VERIFICATION STEPS
+------------------
+After fixing the object, run the validation command to confirm:
+   ocfl validate --object=/workspace/objects/obj-008
+
+Expected output on success: (no errors reported)
+
+ADDITIONAL NOTES
+----------------
+- The object has a valid OCFL declaration file (0=ocfl_object_1.1)
+- All existing version directories (v1, v4, v5, v7, v8) have inventory files
+- The root inventory.json is well-formed JSON
+- The error is specifically about missing versions in the sequence, not file corruption

@@ -1,0 +1,132 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: urn:example-2
+Object Path: /workspace/objects/obj-039
+Validation Status: INVALID
+Generated: 2025-11-09
+
+================================================================================
+VALIDATION ERRORS SUMMARY
+================================================================================
+
+Three validation errors were detected:
+
+1. ERROR E019: 'contentDirectory' doesn't match value in root inventory
+   - Error Code: E019
+   - Details: The root inventory.json specifies 'contentDirectory' as "content",
+     but version v1's inventory.json specifies 'contentDirectory' as "content-dir"
+
+2. WARNING W002: Extra directory in v1
+   - Error Code: W002
+   - Details: The directory "content-dir" exists in v1 but appears to be an
+     extra/unexpected directory based on the root inventory specification
+
+3. ERROR E092: Missing content
+   - Error Code: E092
+   - Details: File "v1/content-dir/test.txt" is referenced in the manifest
+     but cannot be found at the expected location relative to the declared
+     contentDirectory
+
+================================================================================
+ROOT CAUSE ANALYSIS
+================================================================================
+
+The object has an internal inconsistency in its inventory definitions:
+
+ROOT INVENTORY (/workspace/objects/obj-039/inventory.json):
+- contentDirectory: "content" (line 6)
+- head: "v2"
+- Manifest references:
+  * "v1/content-dir/test.txt" (line 9)
+  * "v2/content/test.txt" (line 12)
+
+VERSION v1 INVENTORY (/workspace/objects/obj-039/v1/inventory.json):
+- contentDirectory: "content-dir" (line 6)
+- head: "v1"
+- Manifest references:
+  * "v1/content-dir/test.txt" (line 9)
+
+VERSION v2 INVENTORY (/workspace/objects/obj-039/v2/inventory.json):
+- contentDirectory: "content" (line 6)
+- head: "v2"
+- Manifest references:
+  * "v1/content-dir/test.txt" (line 9)
+  * "v2/content/test.txt" (line 12)
+
+ACTUAL FILESYSTEM STRUCTURE:
+- /workspace/objects/obj-039/v1/content-dir/test.txt (EXISTS - 8 bytes)
+- /workspace/objects/obj-039/v2/content/test.txt (EXISTS - 10 bytes)
+
+ISSUE IDENTIFICATION:
+
+The root inventory declares a global contentDirectory of "content", but the
+manifest in the root inventory still references paths that use "v1/content-dir/"
+which contradicts this declaration. According to OCFL 1.1 specification:
+
+- The contentDirectory at the object level defines the default content
+  directory name for versions
+- When a version is created, it should use the contentDirectory specified in
+  the root inventory (or its own if overridden in a version-specific way)
+- The manifest paths must be consistent with the contentDirectory declarations
+
+The v1 version inventory has already declared its own contentDirectory as
+"content-dir", which is correct for that version. However, the root inventory's
+contentDirectory setting of "content" creates a conflict when the root inventory
+references files in "v1/content-dir/test.txt".
+
+================================================================================
+RECOMMENDED STEPS FOR FIXING
+================================================================================
+
+There are two possible approaches to fix this object:
+
+OPTION 1: Update root inventory to reflect actual v1 structure (Conservative)
+----------
+1. Open /workspace/objects/obj-039/inventory.json
+2. Change line 6 from: "contentDirectory": "content"
+   To: "contentDirectory": "content-dir"
+3. Recalculate and update the root inventory.json.sha512 checksum
+4. Verify that v2 references are still valid (v2 uses "content", so its version
+   inventory will override with its own contentDirectory setting)
+5. Run validation again
+
+Consideration: This approach assumes v1's "content-dir" was the original intent
+and maintains v1 exactly as is.
+
+OPTION 2: Restructure v1 to match root inventory (Recommended for consistency)
+----------
+1. Open /workspace/objects/obj-039/v1/inventory.json
+2. Change line 6 from: "contentDirectory": "content-dir"
+   To: "contentDirectory": "content"
+3. Rename directory: mv /workspace/objects/obj-039/v1/content-dir
+   /workspace/objects/obj-039/v1/content
+4. Update v1 manifest paths in v1/inventory.json from:
+   "v1/content-dir/test.txt" to "v1/content/test.txt"
+5. Recalculate checksums for v1/inventory.json
+6. Update root inventory manifest to reference "v1/content/test.txt" instead
+   of "v1/content-dir/test.txt"
+7. Recalculate root inventory.json.sha512
+8. Run validation again
+
+Consideration: This approach standardizes the contentDirectory naming across
+all versions, making the object structure more consistent and maintainable.
+
+OPTION 3: Preserve current file layout with correct inventory settings
+----------
+If you must keep the files exactly where they are:
+1. Ensure v1/inventory.json specifies "contentDirectory": "content-dir"
+   (it already does)
+2. Update root inventory.json to specify "contentDirectory": "content-dir"
+3. This makes v1 the standard, and v2 will have its own contentDirectory
+   override set to "content"
+4. Recalculate all checksums
+5. Run validation again
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Choose one of the above options based on your requirements
+2. Make the necessary changes to the inventory.json file(s) and filesystem
+3. Recalculate SHA512 checksums using the OCFL tool or manually
+4. Re-run the validation command: ocfl validate --object /workspace/objects/obj-039
+5. Verify all errors are resolved and the object is now VALID

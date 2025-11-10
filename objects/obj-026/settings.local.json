@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ocfl validate:*)",
+      "Bash(shasum:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

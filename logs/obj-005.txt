@@ -1,0 +1,147 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: obj-005
+Report Date: 2025-11-09
+Status: INVALID
+
+================================================================================
+VALIDATION ERRORS SUMMARY
+================================================================================
+
+The validation tool reported the following errors:
+
+1. ERROR (Code: E066)
+   Location: v1/inventory.json
+   Issue: v1/inventory.json has different logical state in its v1 version block
+          than the root inventory.json
+
+2. WARNING (Code: W004)
+   Occurrences: Root inventory.json, v2/inventory.json
+   Issue: digestAlgorithm is "sha256" (should use sha512 or higher per spec)
+
+================================================================================
+DETAILED ANALYSIS
+================================================================================
+
+ROOT CAUSE ANALYSIS:
+
+The primary issue is a mismatch between version states in v1/inventory.json and
+the root inventory.json for version v1. Specifically:
+
+  Root inventory.json v1 state:
+    - Digest 2c8b08da5ce60398e1f19af0e5dccc744df274b826abe585eaba68c525434806
+      maps to file: "changed"
+    - Digest f6936912184481f5edd4c304ce27c5a1a827804fc7f329f43d273b8621870776
+      maps to file: "file-2.txt"
+    - Digest 27dd8ed44a83ff94d557f9fd0412ed5a8cbca69ea04922d88c01184a07300a5a
+      maps to file: "file-3.txt"
+
+  v1/inventory.json v1 state:
+    - Digest 07e41ccb166d21a5327d5a2ae1bb48192b8470e1357266c9d119c294cb1e95978569472c9de64fb6d93cbd4dd0aed0bf1e7c47fd1920de17b038a08a85eb4fa1
+      maps to file: "file-1.txt"
+    - Digest 9fef2458ee1a9277925614272adfe60872f4c1bf02eecce7276166957d1ab30f65cf5c8065a294bf1b13e3c3589ba936a3b5db911572e30dfcb200ef71ad33d5
+      maps to file: "file-2.txt"
+    - Digest b3b26d26c9d8cfbb884b50e798f93ac6bef275a018547b1560af3e6d38f2723785731d3ca6338682fa7ac9acb506b3c594a125ce9d3d60cd14498304cc864cf2
+      maps to file: "file-3.txt"
+
+These are completely different digest values! This indicates:
+  - The v1/inventory.json was computed with sha512 algorithm
+  - The root inventory.json uses sha256 algorithm
+  - The digests don't match because they were computed differently
+  - The root inventory.json has an invalid state entry ("changed" instead of a filename)
+
+SECONDARY ISSUES:
+
+1. Missing v2 content directory: v2/inventory.json references digest mappings
+   but there are no content files in v2/content/.
+
+2. Inconsistent digest algorithms:
+   - Root inventory.json: sha256
+   - v1/inventory.json: sha512
+   - v2/inventory.json: sha256
+
+   Per OCFL specification, all inventories should use the same digest algorithm.
+
+3. Invalid state entry: The root inventory.json v1 version has a state entry
+   mapping to "changed" instead of a proper logical filename. This violates
+   OCFL specification requirements.
+
+================================================================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+================================================================================
+
+OPTION 1: Restore Consistency by Using Root Inventory
+---------
+This approach trusts the root inventory.json as the source of truth:
+
+1. Recalculate SHA256 digests of the actual content files in v1/content/:
+   - v1/content/file-1.txt
+   - v1/content/file-2.txt
+   - v1/content/file-3.txt
+
+2. Update v1/inventory.json to match:
+   - Change digestAlgorithm from "sha512" to "sha256"
+   - Update manifest entries with correct sha256 digests of actual files
+   - Fix the v1 state block to use consistent logical filenames
+   - Remove the "changed" entry and ensure all state mappings use valid filenames
+
+3. Verify v2/inventory.json:
+   - Ensure it uses sha256 algorithm
+   - Verify manifest entries exist with correct digests
+   - Check that v2 has corresponding content files or proper references to v1
+
+4. Recalculate and update all inventory digest files:
+   - inventory.json.sha256 (root)
+   - v1/inventory.json.sha256 or .sha512 (matching chosen algorithm)
+   - v2/inventory.json.sha256
+
+5. Re-run validation
+
+
+OPTION 2: Rebuild v1 Inventory File Using Actual Content
+---------
+This approach fixes the v1/inventory.json to match actual content:
+
+1. Examine the actual content files in v1/content/ directory
+2. Calculate their SHA256 digests using:
+   sha256sum v1/content/file-*.txt
+
+3. Update v1/inventory.json:
+   - Ensure digestAlgorithm is "sha256" (matching root)
+   - Replace manifest with correct digest-to-path mappings
+   - Update state blocks to use correct digests and valid filenames
+   - Remove the "changed" entry from state
+
+4. Verify the root inventory.json state entries are also fixed
+5. Recalculate inventory digest checksums
+6. Re-run validation
+
+
+OPTION 3: Manual Inspection and Correction
+---------
+1. List actual content with checksums:
+   cd /workspace/objects/obj-005
+   find . -type f -name "file-*.txt" -exec sha256sum {} \;
+
+2. Manually edit v1/inventory.json to match actual file digests
+3. Ensure consistent use of sha256 algorithm throughout
+4. Fix invalid state entries (remove "changed")
+5. Update all digest checksum files
+6. Validate the result
+
+
+================================================================================
+CHECKLIST FOR VALIDATION
+================================================================================
+
+After applying fixes, verify the following:
+
+[ ] All inventory files use the same digest algorithm (sha256 or sha512)
+[ ] v1 version state block contains only valid logical filenames
+[ ] All manifest entries have corresponding content files
+[ ] All digest values match actual file contents
+[ ] Root, v1, and v2 inventory files are consistent
+[ ] v2 inventory has proper version state defined (currently not shown in v1)
+[ ] All inventory.json.sha256/sha512 files match their respective inventory files
+[ ] Object passes: ocfl validate --object=objects/obj-005
+
+================================================================================

@@ -1,0 +1,105 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: obj-051
+Validation Date: 2025-11-09
+Status: INVALID
+
+==============================================================================
+SUMMARY OF VALIDATION ERRORS
+==============================================================================
+
+Error Code: E037
+Location: v1/inventory.json
+Message: 'id' doesn't match value in root inventory
+
+==============================================================================
+DETAILED ANALYSIS
+==============================================================================
+
+The OCFL object at /workspace/objects/obj-051 failed validation due to a critical
+inventory ID mismatch error (OCFL Error Code E037).
+
+ISSUE DESCRIPTION:
+The validation error indicates that the 'id' field in the v1/inventory.json file
+does not match the 'id' field in the root inventory.json file.
+
+INVENTORY ID VALUES FOUND:
+- Root inventory.json:     "id": "urn:example-2"
+- v1/inventory.json:       "id": "urn:example-two"
+- v2/inventory.json:       "id": "urn:example-2"
+
+The issue is that v1/inventory.json has the ID "urn:example-two" while both the
+root inventory.json and v2/inventory.json have the ID "urn:example-2". These
+do not match.
+
+OCFL SPECIFICATION REQUIREMENT:
+According to OCFL 1.1 specification, all version-specific inventory files must
+have the same 'id' value as the root inventory file. The 'id' must be consistent
+across all versions of an object to maintain object integrity and identity.
+
+ROOT CAUSE:
+The v1/inventory.json file contains an incorrect 'id' value that differs from
+the authoritative root inventory. This is likely due to one of the following:
+1. Manual editing error when v1/inventory.json was created or modified
+2. Incorrect initial object creation that was later partially corrected
+3. Data corruption or migration issue
+
+ADDITIONAL OBSERVATIONS:
+- The object contains two versions (v1 and v2)
+- The manifest references content file: v1/content/test.txt
+- The v1 version only has 1 file in its state
+- The v2 version has 2 files in its state (test.txt and test-2.txt)
+- However, only v1/content/test.txt was found on disk
+- The second file referenced in v2 (test-2.txt) is missing from the physical storage
+
+==============================================================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+==============================================================================
+
+STEP 1: Update v1/inventory.json ID
+---------
+The 'id' field in /workspace/objects/obj-051/v1/inventory.json must be changed
+from "urn:example-two" to "urn:example-2" to match the root inventory.
+
+Current value in v1/inventory.json (line 2):
+  "id": "urn:example-two",
+
+Should be changed to:
+  "id": "urn:example-2",
+
+STEP 2: Verify v2/inventory.json
+---------
+Confirm that /workspace/objects/obj-051/v2/inventory.json has the correct ID:
+  "id": "urn:example-2"
+
+This has already been verified and is correct.
+
+STEP 3: Add Missing Content Files (Optional but Recommended)
+---------
+The v2/inventory.json references a second file "test-2.txt" in its state, but
+only "test.txt" exists in v1/content/. Determine if:
+a) The second file should exist and needs to be restored
+b) The inventory state entry for "test-2.txt" was incorrectly added and should
+   be removed from v2 state
+
+This is a secondary issue but should be investigated.
+
+STEP 4: Re-validate After Fix
+---------
+After updating the v1/inventory.json 'id' field, run the validation again:
+  ocfl validate --object /workspace/objects/obj-051
+
+The object should pass validation once the ID mismatch is corrected.
+
+==============================================================================
+SEVERITY AND IMPACT
+==============================================================================
+
+Severity: CRITICAL
+
+This is a critical issue that prevents the object from being compliant with
+the OCFL specification. The object cannot be considered a valid OCFL object
+until this issue is resolved. All objects must have consistent identity across
+all versions to maintain referential integrity and meet OCFL requirements.
+
+The fix is straightforward and requires only a single field value correction
+in one inventory file.

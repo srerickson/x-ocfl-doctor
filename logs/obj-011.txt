@@ -1,0 +1,152 @@
+OCFL OBJECT VALIDATION REPORT
+=============================
+Object ID: urn:example-3
+Object Path: /workspace/objects/obj-011
+Validation Status: INVALID
+Date: 2025-11-09
+
+VALIDATION ERROR SUMMARY
+========================
+The OCFL object failed validation with the following error:
+- Error Code: E099
+- Error Message: Invalid path '/v1/content/file-3.txt' in root inventory.json
+- Location: Root inventory.json manifest
+
+DETAILED ANALYSIS
+=================
+
+The validation error (E099) indicates that at least one path in the manifest violates OCFL path normalization requirements. Upon examination of the inventory.json file, the following path format issues were identified:
+
+1. INVALID PATH - Line 9 in manifest:
+   Path: "/v1/content/file-3.txt"
+   Issue: Begins with a leading slash ("/")
+
+   According to OCFL 1.1 specification, manifest paths must:
+   - Be relative to the object root (not absolute)
+   - Not begin with a leading slash
+   - Be normalized (no redundant separators or parent directory references)
+
+2. PATH NORMALIZATION ISSUES - Additional manifest entries:
+
+   Line 12:
+   Path: "v1/content/../content/file-1.txt"
+   Issue: Contains ".." (parent directory reference) which should be normalized
+   Should be: "v1/content/file-1.txt"
+
+   Line 15:
+   Path: "v1/content//file-2.txt"
+   Issue: Contains double slashes (//) which should be normalized to single slash
+   Should be: "v1/content/file-2.txt"
+
+CURRENT VS. EXPECTED MANIFEST
+=============================
+
+Current (INVALID):
+{
+  "b3b26d26c9d8cfbb884b50e798f93ac6bef275a018547b1560af3e6d38f2723785731d3ca6338682fa7ac9acb506b3c594a125ce9d3d60cd14498304cc864cf2": [
+    "/v1/content/file-3.txt"        <-- LEADING SLASH (E099)
+  ],
+  "07e41ccb166d21a5327d5a2ae1bb48192b8470e1357266c9d119c294cb1e95978569472c9de64fb6d93cbd4dd0aed0bf1e7c47fd1920de17b038a08a85eb4fa1": [
+    "v1/content/../content/file-1.txt"  <-- UNNORMALIZED PATH
+  ],
+  "9fef2458ee1a9277925614272adfe60872f4c1bf02eecce7276166957d1ab30f65cf5c8065a294bf1b13e3c3589ba936a3b5db911572e30dfcb200ef71ad33d5": [
+    "v1/content//file-2.txt"        <-- DOUBLE SLASH
+  ]
+}
+
+Expected (VALID):
+{
+  "b3b26d26c9d8cfbb884b50e798f93ac6bef275a018547b1560af3e6d38f2723785731d3ca6338682fa7ac9acb506b3c594a125ce9d3d60cd14498304cc864cf2": [
+    "v1/content/file-3.txt"         <-- NO LEADING SLASH
+  ],
+  "07e41ccb166d21a5327d5a2ae1bb48192b8470e1357266c9d119c294cb1e95978569472c9de64fb6d93cbd4dd0aed0bf1e7c47fd1920de17b038a08a85eb4fa1": [
+    "v1/content/file-1.txt"         <-- NORMALIZED PATH
+  ],
+  "9fef2458ee1a9277925614272adfe60872f4c1bf02eecce7276166957d1ab30f65cf5c8065a294bf1b13e3c3589ba936a3b5db911572e30dfcb200ef71ad33d5": [
+    "v1/content/file-2.txt"         <-- SINGLE SLASH
+  ]
+}
+
+ROOT CAUSE ANALYSIS
+===================
+
+The inventory.json file contains three path normalization violations in the manifest section:
+
+1. Absolute vs. Relative Paths:
+   - The path "/v1/content/file-3.txt" uses an absolute path format (leading slash)
+   - OCFL requires all manifest paths to be relative to the object root
+   - This violates OCFL 1.1 specification requirement for path normalization
+
+2. Unnormalized Path Separators:
+   - Manifest contains paths with ".." and "//" which are not normalized
+   - OCFL requires path normalization according to RFC 3986 Section 5.2.2
+   - Paths must be in canonical form with single separators and no parent references
+
+3. Consistency Issues:
+   - The three file entries use inconsistent path formats, indicating the inventory.json
+     was either manually edited incorrectly or generated with a non-compliant tool
+
+RECOMMENDED STEPS FOR FIXING
+=============================
+
+To fix this OCFL object, follow these steps:
+
+1. EDIT ROOT INVENTORY.JSON
+   File: /workspace/objects/obj-011/inventory.json
+
+   Change line 9 from:
+   "/v1/content/file-3.txt"
+
+   To:
+   "v1/content/file-3.txt"
+
+   Change line 12 from:
+   "v1/content/../content/file-1.txt"
+
+   To:
+   "v1/content/file-1.txt"
+
+   Change line 15 from:
+   "v1/content//file-2.txt"
+
+   To:
+   "v1/content/file-2.txt"
+
+2. EDIT VERSION INVENTORY.JSON
+   File: /workspace/objects/obj-011/v1/inventory.json
+
+   Apply the same fixes as in step 1 (lines 9, 12, and 15)
+
+3. REGENERATE CHECKSUM
+   After modifying the inventory.json files, regenerate the SHA-512 checksums:
+
+   For root inventory.json:
+   - Recalculate and update /workspace/objects/obj-011/inventory.json.sha512
+
+   For version inventory.json:
+   - Recalculate and update /workspace/objects/obj-011/v1/inventory.json.sha512
+
+   Commands:
+   sha512sum /workspace/objects/obj-011/inventory.json > /workspace/objects/obj-011/inventory.json.sha512
+   sha512sum /workspace/objects/obj-011/v1/inventory.json > /workspace/objects/obj-011/v1/inventory.json.sha512
+
+4. RE-VALIDATE
+   After making all changes, re-run the validation:
+   ocfl validate --object /workspace/objects/obj-011
+
+   The object should now pass validation with no errors.
+
+AFFECTED FILES
+==============
+- /workspace/objects/obj-011/inventory.json (needs correction)
+- /workspace/objects/obj-011/v1/inventory.json (needs correction)
+- /workspace/objects/obj-011/inventory.json.sha512 (needs regeneration)
+- /workspace/objects/obj-011/v1/inventory.json.sha512 (needs regeneration)
+
+SPECIFICATION REFERENCES
+========================
+- OCFL Specification 1.1: Path Normalization Requirements
+  https://ocfl.io/1.1/spec/#path-normalization
+- OCFL Specification 1.1: Manifest Structure
+  https://ocfl.io/1.1/spec/#manifest
+- RFC 3986 Section 5.2.2: Syntax-Based Normalization

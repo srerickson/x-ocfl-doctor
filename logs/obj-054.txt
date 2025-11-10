@@ -1,0 +1,186 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: obj-054
+Validation Date: 2025-11-09
+Status: INVALID
+
+================================================================================
+VALIDATION ERRORS SUMMARY
+================================================================================
+
+The OCFL object at /workspace/objects/obj-054 failed validation with the following errors:
+
+1. CRITICAL ERROR - E048: Required field missing in inventory.json
+   - Issue: Version 'v1' missing required field 'created'
+   - Location: inventory.json > versions > v1
+   - Impact: The 'created' field is mandatory and must contain an ISO 8601 datetime string
+
+2. CRITICAL ERROR - E048: Required field missing in inventory.json
+   - Issue: Version 'v1' missing required field 'state'
+   - Location: inventory.json > versions > v1
+   - Impact: The 'state' field is mandatory and must contain an object mapping digests to file paths
+
+3. ERROR - E094: Optional field has unexpected JSON value
+   - Issue: Field 'message' has unexpected JSON value
+   - Location: inventory.json > versions > v1 > message
+   - Current Value: [ "should be a string" ] (array instead of string)
+   - Impact: When present, 'message' must be a string, not an array
+
+4. ERROR - E054: Optional field has unexpected JSON value
+   - Issue: Field 'user' has unexpected JSON value
+   - Location: inventory.json > versions > v1 > user
+   - Current Value: "should be an object" (string instead of object)
+   - Impact: When present, 'user' must be an object with 'name' and optionally 'address' fields
+
+5. ERROR - E107: Digest in manifest not used in version state
+   - Issue: Digest '43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f' is referenced in manifest but not used in v1 state
+   - Impact: All digests in the manifest must be referenced in at least one version's state
+
+6. WARNING - W007: Recommended field missing
+   - Issue: Version 'v1' missing recommended field 'message'
+   - Impact: While not required, the 'message' field is recommended for documenting version changes
+
+7. WARNING - W007: Recommended field missing
+   - Issue: Version 'v1' missing recommended field 'user'
+   - Impact: While not required, the 'user' field is recommended for documenting who made changes
+
+================================================================================
+ANALYSIS OF ISSUES
+================================================================================
+
+Root Cause:
+The inventory.json file contains invalid data types and structures that violate the OCFL 1.1 specification. The file appears to be intentionally malformed with comments or placeholder values instead of proper data.
+
+Current inventory.json structure (lines 12-17):
+    "v1": {
+      "created": { "key": "should be a datetime string" },
+      "state": "should be an object",
+      "message": [ "should be a string" ],
+      "user": "should be an object"
+    }
+
+Specific Problems:
+
+1. 'created' field:
+   - Current: Object with key "key": "should be a datetime string"
+   - Expected: ISO 8601 datetime string (e.g., "2024-01-15T10:30:00Z")
+
+2. 'state' field:
+   - Current: String value "should be an object"
+   - Expected: Object mapping digest hashes to arrays of file paths
+   - Example: { "digest_hash": ["v1/content/a_file.txt"] }
+
+3. 'message' field:
+   - Current: Array ["should be a string"]
+   - Expected: String describing the version changes (or omit if not needed)
+
+4. 'user' field:
+   - Current: String "should be an object"
+   - Expected: Object with 'name' field, optionally with 'address' field
+   - Example: { "name": "John Doe", "address": "https://example.org/people/jdoe" }
+
+5. Unreferenced digest:
+   - The manifest contains a digest for v1/content/a_file.txt
+   - The state object should map this digest to the file path
+   - Currently, the state is a string, so the digest cannot be referenced
+
+================================================================================
+OBJECT STRUCTURE
+================================================================================
+
+Object Location: /workspace/objects/obj-054/
+OCFL Version: 1.1 (declared in 0=ocfl_object_1.1)
+Object ID: ark:123/abc
+
+Directory Structure:
+  obj-054/
+    0=ocfl_object_1.1                   (Declaration file)
+    inventory.json                      (Main metadata - CONTAINS ERRORS)
+    inventory.json.sha512               (Checksum file)
+    v1/                                 (Version directory)
+      content/
+        a_file.txt                      (20 bytes - "Hello! I am a file.\n")
+      inventory.json                    (Copy in version directory)
+      inventory.json.sha512             (Checksum copy)
+
+File: a_file.txt
+  Content: "Hello! I am a file."
+  Expected Digest: 43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f
+
+================================================================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+================================================================================
+
+The inventory.json file must be corrected to comply with OCFL 1.1 specification.
+The correct structure should be:
+
+{
+  "digestAlgorithm": "sha512",
+  "head": "v1",
+  "id": "ark:123/abc",
+  "manifest": {
+    "43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f": [
+      "v1/content/a_file.txt"
+    ]
+  },
+  "type": "https://ocfl.io/1.1/spec/#inventory",
+  "versions": {
+    "v1": {
+      "created": "2024-11-09T10:05:00Z",
+      "state": {
+        "43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f": [
+          "v1/content/a_file.txt"
+        ]
+      },
+      "message": "Initial version with sample file",
+      "user": {
+        "name": "Administrator"
+      }
+    }
+  }
+}
+
+Key Corrections Needed:
+
+1. Fix 'created' field:
+   - Change from: { "key": "should be a datetime string" }
+   - Change to: "2024-11-09T10:05:00Z" (or appropriate ISO 8601 datetime)
+
+2. Fix 'state' field:
+   - Change from: "should be an object"
+   - Change to: Object mapping the digest hash to the file path
+   - Must include: { "43a43fe...": ["v1/content/a_file.txt"] }
+
+3. Fix 'message' field (or remove if not needed):
+   - Change from: [ "should be a string" ]
+   - Change to: "Initial version with sample file" (descriptive string)
+
+4. Fix 'user' field (or remove if not needed):
+   - Change from: "should be an object"
+   - Change to: { "name": "Administrator" } (object with name)
+
+5. Regenerate checksums:
+   - After correcting inventory.json, run: sha512sum inventory.json > inventory.json.sha512
+   - This file must be updated in both /v1/ and root directories
+
+6. Validate after fixes:
+   - Run: ocfl validate --object /workspace/objects/obj-054
+   - Continue fixing until all errors are resolved
+
+================================================================================
+PRIORITY ACTIONS
+================================================================================
+
+HIGH PRIORITY (Blocking):
+1. Correct the 'created' field with valid ISO 8601 datetime
+2. Correct the 'state' field to be an object mapping digests to file paths
+3. Update inventory.json.sha512 checksums in both locations
+
+MEDIUM PRIORITY (Important):
+1. Fix the 'message' field format (string instead of array)
+2. Fix the 'user' field format (object instead of string)
+
+LOW PRIORITY (Recommended):
+1. Consider providing meaningful values for 'message' and 'user' fields
+2. Ensure consistent timestamps across all inventory files
+
+================================================================================

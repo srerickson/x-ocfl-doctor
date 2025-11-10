@@ -1,0 +1,136 @@
+OCFL OBJECT VALIDATION REPORT
+=============================
+Object: obj-034
+Object Path: /workspace/objects/obj-034
+Validation Date: 2025-11-09
+
+VALIDATION STATUS: INVALID
+===========================
+
+VALIDATION ERRORS
+=================
+
+1. ERROR CODE E041 - Missing Required 'manifest' Field
+   Severity: CRITICAL
+   Location: Root inventory.json
+   Message: "required field is missing or has unexpected json value: 'manifest'"
+   Details: The inventory.json file is missing the mandatory 'manifest' object.
+
+2. WARNING CODE W007 - Missing Recommended 'message' Field
+   Severity: WARNING
+   Location: Version v1 in inventory.json
+   Message: "version v1 missing recommended field: 'message'"
+   Details: The version v1 object should include a 'message' field describing the state change.
+
+3. WARNING CODE W007 - Missing Recommended 'user' Field
+   Severity: WARNING
+   Location: Version v1 in inventory.json
+   Message: "version v1 missing recommended field: 'user'"
+   Details: The version v1 object should include a 'user' field identifying who made the change.
+
+
+ANALYSIS
+========
+
+Current inventory.json Structure:
+- digestAlgorithm: sha512
+- head: v1
+- id: http://example.org/E041_no_manifest
+- type: https://ocfl.io/1.1/spec/#inventory
+- versions:
+  - v1:
+    - created: 2019-01-01T02:03:04Z
+    - state: {} (empty object)
+
+Issues Identified:
+
+1. CRITICAL ISSUE: Missing 'manifest' Field
+   The inventory.json file is fundamentally incomplete. According to OCFL specification 1.1,
+   the inventory.json must include a 'manifest' object that maps content digest values to
+   their file paths within the object's content directories. This is a required field and
+   the absence of it makes the object structurally invalid.
+
+2. Empty 'state' Object
+   The version v1 has an empty state object. The state should contain a mapping of logical
+   paths (as defined in the object) to their corresponding digests in the manifest.
+
+3. Missing Recommended Metadata
+   While the errors E041 is critical, there are also two warning-level issues:
+   - 'message': Should describe what was added/changed in this version
+   - 'user': Should identify who created this version (name and address fields)
+
+
+RECOMMENDED STEPS FOR FIXING
+=============================
+
+Step 1: Add the 'manifest' Object (REQUIRED)
+   The inventory.json must include a 'manifest' field. If there are no actual content
+   files in the object, add an empty manifest object:
+
+   "manifest": {}
+
+   If there ARE content files in the object:
+   a) Identify all content files in the object's content directory (e.g., v1/content/)
+   b) Calculate the digest (sha512) for each file
+   c) Map digests to file paths in the manifest:
+      "manifest": {
+        "<digest-of-file>": ["v1/content/path/to/file"],
+        ...
+      }
+
+Step 2: Populate the 'state' Object (REQUIRED)
+   Update the version v1 state to map logical paths to their digests:
+
+   "state": {
+     "logical/path/to/file": "<digest-value>",
+     ...
+   }
+
+Step 3: Add Recommended Fields (RECOMMENDED)
+   Update version v1 to include metadata:
+
+   "v1": {
+     "created": "2019-01-01T02:03:04Z",
+     "message": "Initial version created",
+     "user": {
+       "name": "User Name",
+       "address": "user@example.org"
+     },
+     "state": { ... }
+   }
+
+Step 4: Recalculate Checksums
+   After modifying inventory.json:
+   a) Generate a new SHA512 checksum of the updated inventory.json
+   b) Update inventory.json.sha512 with the new checksum value
+   c) Update v1/inventory.json with the same content
+   d) Update v1/inventory.json.sha512 with the same checksum
+
+Step 5: Validate Again
+   Run: ocfl validate --object /workspace/objects/obj-034
+   Ensure all errors are resolved before considering the object valid.
+
+
+OCFL SPECIFICATION REFERENCES
+==============================
+
+- OCFL 1.1 Specification: https://ocfl.io/1.1/spec/
+- Error E041: OCFL Core Constraint Violation - Missing required inventory field
+- Warning W007: Missing recommended version metadata
+- Inventory structure: https://ocfl.io/1.1/spec/#inventory-structure
+
+
+CURRENT OBJECT STRUCTURE
+========================
+
+Files present:
+- /workspace/objects/obj-034/0=ocfl_object_1.1 (OCFL declaration)
+- /workspace/objects/obj-034/inventory.json (INVALID - missing manifest)
+- /workspace/objects/obj-034/inventory.json.sha512
+- /workspace/objects/obj-034/v1/inventory.json (INVALID - missing manifest)
+- /workspace/objects/obj-034/v1/inventory.json.sha512
+
+Object Identifier: http://example.org/E041_no_manifest
+OCFL Version: 1.1
+Storage Algorithm: sha512
+

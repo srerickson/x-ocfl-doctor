@@ -1,0 +1,6 @@
+.claude/
+/.claude/*.local.json
+
+# Devcontainer persistence
+.devcontainer/.zsh_history
+.devcontainer/.config/

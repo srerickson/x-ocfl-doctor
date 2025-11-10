@@ -1,0 +1,65 @@
+OCFL OBJECT VALIDATION REPORT
+=============================
+
+Object: obj-002
+Location: /workspace/objects/obj-002
+Validation Status: INVALID
+Validation Error Code: E040
+
+VALIDATION ERROR SUMMARY
+------------------------
+Error: v2/inventory.json - 'head' does not match its directory
+
+ERROR CODE E040 EXPLANATION
+---------------------------
+Error code E040 is triggered when the 'head' field in a version inventory.json
+does not match the version directory it resides in. This is a critical structural
+integrity error in the OCFL object.
+
+DETAILED ANALYSIS
+-----------------
+
+Issue Identified:
+The v2/inventory.json file contains "head": "v3", but it should contain "head": "v2"
+because it is located in the v2 directory.
+
+Evidence:
+- Root inventory.json has: "head": "v3" (correct - points to the latest version)
+- v1/inventory.json has: "head": "v1" (correct - matches its directory)
+- v2/inventory.json has: "head": "v3" (INCORRECT - should be "head": "v2")
+- v3/inventory.json has: "head": "v3" (correct - matches its directory)
+
+OCFL Specification Requirement:
+According to the OCFL specification, each version directory must contain an
+inventory.json where the 'head' field points to that specific version directory.
+Only the root-level inventory.json should point to the actual current/latest version.
+
+IMPACT
+------
+This inconsistency breaks the logical structure of the OCFL object. The v2 version
+claims that v3 is the head version, which is semantically incorrect for that
+version snapshot. This violates OCFL storage structure integrity.
+
+RECOMMENDED FIX
+---------------
+
+Step 1: Edit /workspace/objects/obj-002/v2/inventory.json
+   Change line 5 from:
+      "head": "v3",
+   To:
+      "head": "v2",
+
+Step 2: Recalculate the inventory.json.sha512 checksum for v2
+   Run: sha512sum /workspace/objects/obj-002/v2/inventory.json > /workspace/objects/obj-002/v2/inventory.json.sha512
+
+Step 3: Re-validate the object
+   Run: ocfl validate --object=/workspace/objects/obj-002
+
+   Expected result: Validation should pass
+
+PREVENTION
+----------
+When updating OCFL objects, ensure that:
+1. Each version-specific inventory.json file has 'head' set to its own version (v1, v2, v3, etc.)
+2. Only the root-level inventory.json should have 'head' pointing to the latest version
+3. After modifying inventory.json files, always recalculate and update the corresponding .sha512 checksum files

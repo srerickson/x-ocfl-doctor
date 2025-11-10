@@ -1,0 +1,74 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: urn:example-2
+Object Path: /workspace/objects/obj-020
+Validation Date: 2025-11-09
+Status: INVALID
+
+===== VALIDATION ERROR SUMMARY =====
+The object failed validation with the following error:
+- OCFL Code E101: Path conflict detected for 'v1/content/test.txt'
+
+===== DETAILED ANALYSIS =====
+
+1. ERROR DESCRIPTION:
+   The manifest in the inventory.json contains a path conflict violation. The same
+   logical file path appears multiple times in the manifest array for a single digest.
+
+2. ROOT CAUSE:
+   In the manifest section at line 9 of inventory.json, the path 'v1/content/test.txt'
+   is listed THREE times in the manifest entry:
+
+   "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28": [
+     "v1/content/test.txt",      <-- First occurrence
+     "v1/content/test-copy.txt",
+     "v1/content/test.txt"       <-- Duplicate occurrence
+   ]
+
+   According to OCFL specification (error code E101), each logical path within a
+   manifest must be unique - a path cannot appear multiple times within the same
+   digest entry or across different digest entries.
+
+3. STRUCTURE ANALYSIS:
+   - Object declaration: Correctly formatted (0=ocfl_object_1.1)
+   - Inventory exists at: /workspace/objects/obj-020/inventory.json
+   - Version directory exists: /workspace/objects/obj-020/v1
+   - Actual content files present:
+     * v1/content/test.txt (exists)
+     * v1/content/test-copy.txt (exists)
+
+   The physical files exist, but the inventory metadata is inconsistent with
+   OCFL requirements.
+
+===== RECOMMENDED FIXES =====
+
+Option 1 (RECOMMENDED - If duplicates are unintended):
+  Remove the duplicate "v1/content/test.txt" entry from the manifest array,
+  keeping only one occurrence per logical path.
+
+  Change:
+    "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28": [
+      "v1/content/test.txt", "v1/content/test-copy.txt", "v1/content/test.txt"
+    ]
+
+  To:
+    "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28": [
+      "v1/content/test.txt", "v1/content/test-copy.txt"
+    ]
+
+Option 2 (If the duplicate represents different file content):
+  If "v1/content/test.txt" should actually reference different content, the
+  different versions must have different digest hashes. This would require
+  content separation or version management.
+
+IMPLEMENTATION STEPS:
+  1. Edit /workspace/objects/obj-020/inventory.json
+  2. Remove the duplicate "v1/content/test.txt" from the manifest array
+  3. Recalculate the inventory.json.sha512 checksum if required by your system
+  4. Re-run validation: ocfl validate --object objects/obj-020
+  5. Verify successful validation before considering the object fixed
+
+===== OCFL SPECIFICATION REFERENCE =====
+Error Code: E101 (Path Conflict)
+Specification: OCFL v1.1
+Rule: Each logical path within a manifest must be unique and appear exactly once
+per digest entry. Duplicate logical paths violate the manifest structure.

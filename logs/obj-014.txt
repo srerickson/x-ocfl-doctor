@@ -1,0 +1,114 @@
+OCFL OBJECT VALIDATION REPORT
+==============================
+Object ID: obj-014
+Location: /workspace/objects/obj-014
+Validation Status: INVALID
+Validation Date: 2025-11-09
+
+VALIDATION ERROR SUMMARY
+========================
+
+Primary Error:
+  - Error Code: E010 (OCFL Specification Error)
+  - Description: Missing version in version sequence: v3
+  - Message: "root contents: missing version in version sequence: v3"
+
+DETAILED ANALYSIS
+=================
+
+The OCFL (Oxford Common File Layout) object at /workspace/objects/obj-014 is INVALID
+due to a broken version sequence.
+
+ISSUE DESCRIPTION:
+------------------
+The object's directory structure contains versions v1, v2, and v4, but is missing
+version v3. According to the OCFL specification, versions must form a continuous
+sequence with no gaps. Each subsequent version number must be exactly one integer
+higher than the previous version.
+
+CURRENT STRUCTURE:
+  Directories present: v1, v2, v4
+  Directory missing: v3
+
+INVENTORY INCONSISTENCY:
+The root-level inventory.json file declares all four versions (v1, v2, v3, v4)
+with complete metadata for each:
+
+  - v1: "First" - contains test.txt
+  - v2: "Second" - contains test.txt, test-2.txt
+  - v3: "Third" - contains test.txt, test-2.txt, test-3.txt (MISSING DIRECTORY)
+  - v4: "Fourth" - contains test.txt, test-2.txt, test-3.txt, test-4.txt
+
+However, the v3 directory itself does not exist on disk, creating a mismatch between
+the declared inventory and the actual file system structure.
+
+VERSION-LEVEL INVENTORY FILES:
+Each version directory contains its own inventory.json file with decreasing scope:
+  - v1/inventory.json: Contains only v1 metadata
+  - v2/inventory.json: Contains v1 and v2 metadata
+  - v4/inventory.json: Contains v1, v2, v3, and v4 metadata (complete)
+
+OCFL SPECIFICATION VIOLATION:
+According to OCFL 1.1 specification, this violates requirement E010:
+  "Each version directory name shall be of the form 'v' followed by an integer
+   starting with v1 and incrementing by 1 for each new version."
+
+ROOT INVENTORY PROPERTIES:
+  - ID: urn:example-1
+  - Type: https://ocfl.io/1.1/spec/#inventory
+  - Digest Algorithm: sha512
+  - Head: v4 (indicates the latest version)
+  - Content Directory: content
+  - Manifest: Single entry for test.txt content
+
+RECOMMENDED REMEDIATION STEPS
+==============================
+
+To fix this OCFL object, you have two options:
+
+OPTION 1: CREATE THE MISSING V3 VERSION DIRECTORY (Recommended)
+--------------------------------------------------------------
+This approach restores the complete version sequence. Based on the inventory data,
+v3 should contain:
+  - An inventory.json file with v1, v2, and v3 version metadata
+  - An inventory.json.sha512 file with the correct checksum
+  - A content directory (if needed for new content in v3)
+  - The appropriate digest entries for the manifest
+
+Steps:
+  1. Create directory: /workspace/objects/obj-014/v3
+  2. Create /workspace/objects/obj-014/v3/inventory.json containing:
+     - Complete metadata for v1, v2, and v3 versions
+     - Same manifest as root inventory (single test.txt entry)
+     - "head": "v3" (since this is the v3 version inventory)
+  3. Generate SHA512 checksum of the inventory.json file
+  4. Create /workspace/objects/obj-014/v3/inventory.json.sha512 with the checksum
+  5. Run validation again to confirm compliance
+
+OPTION 2: REMOVE THE INCOMPLETE VERSIONS AND CONSOLIDATE
+---------------------------------------------------------
+If v3 was not intended to be a published version, you could:
+  1. Remove the v3 entry from the root inventory.json
+  2. Update the manifest and versions sections to exclude v3
+  3. Regenerate inventory.json.sha512
+  4. Re-validate the object
+
+This approach assumes v3 was added to the inventory by mistake.
+
+OPTION 3: RESET TO PREVIOUS VALID STATE
+----------------------------------------
+If the object was previously valid, restore from backup:
+  1. Locate the last known-good version of this OCFL object
+  2. Replace the current object with the backup
+  3. Verify with validation
+
+RECOMMENDED ACTION:
+Use OPTION 1 (Create v3 directory) as it maintains all version history that is
+already declared in the inventory, ensuring complete object integrity.
+
+IMPACT ASSESSMENT
+=================
+- Data Loss Risk: NO - All content is referenced in the manifest
+- Preservation Risk: MEDIUM - Object is unverifiable in current state
+- Recovery Difficulty: LOW - Missing directory structure only; content is intact
+- OCFL Compliance: CRITICAL - Object is non-compliant with OCFL 1.1 specification

@@ -1,0 +1,142 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: info:a/b/cde-1
+Object Path: /workspace/objects/obj-006
+Validation Date: 2025-11-09
+Status: INVALID
+
+================================================================================
+VALIDATION ERRORS
+================================================================================
+
+1. ERROR CODE E049: Timestamp Parsing Error
+   Location: root inventory.json, version 'v1'
+   Issue: The 'created' field contains an invalid timestamp format
+   Details: "created": "2019-01-01T02:03:04"
+   Problem: The timestamp is missing the timezone designator (Z or ±HH:MM)
+   Expected format: RFC3339 (2006-01-02T15:04:05Z07:00)
+   Actual format: 2019-01-01T02:03:04 (missing timezone)
+
+2. ERROR CODE E048: Missing Required Field
+   Location: root inventory.json, version v1
+   Issue: The version 'v1' is missing the required 'created' field
+   Details: This error occurs as a consequence of error E049 (parsing failure)
+
+================================================================================
+ANALYSIS OF THE ISSUES
+================================================================================
+
+Root Cause:
+The OCFL specification (1.1) requires that the 'created' timestamp in the
+inventory.json file MUST be in RFC3339 format with explicit timezone information.
+
+The inventory.json file at /workspace/objects/obj-006/inventory.json contains:
+  "v1": {
+    "created": "2019-01-01T02:03:04",
+    ...
+  }
+
+This timestamp lacks the required timezone designator. RFC3339 format requires
+either:
+  - Zulu time (UTC): 2019-01-01T02:03:04Z
+  - Specific timezone offset: 2019-01-01T02:03:04-05:00 or 2019-01-01T02:03:04+00:00
+
+Impact:
+The validation fails because the OCFL validator cannot parse the timestamp,
+which is a critical metadata field required for OCFL object integrity.
+
+Object Structure Status:
+  - OCFL declaration file: PRESENT (0=ocfl_object_1.1) - VALID
+  - Root inventory.json: PRESENT but INVALID (malformed timestamp)
+  - Root inventory.json.sha512: PRESENT
+  - Version directory v1: PRESENT
+  - v1/inventory.json: PRESENT but likely has same issue
+  - v1/inventory.json.sha512: PRESENT
+  - v1/content/a_file.txt: PRESENT - Content readable
+
+================================================================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+================================================================================
+
+Step 1: Fix the root inventory.json timestamp
+  File: /workspace/objects/obj-006/inventory.json
+  Current line 13: "created": "2019-01-01T02:03:04",
+  Corrected: "created": "2019-01-01T02:03:04Z",
+
+  Action: Add 'Z' to indicate UTC timezone, or replace with appropriate timezone
+  offset if the creation time is not in UTC.
+
+Step 2: Fix the v1 inventory.json timestamp (if present)
+  File: /workspace/objects/obj-006/v1/inventory.json
+  Apply the same fix as Step 1
+
+Step 3: Recalculate inventory.json checksums
+  After fixing the timestamp, the inventory.json files will have different
+  content, so the SHA512 checksums must be updated:
+
+  For root inventory.json:
+    Run: sha512sum inventory.json > inventory.json.sha512
+
+  For v1/inventory.json:
+    Run: sha512sum v1/inventory.json > v1/inventory.json.sha512
+
+Step 4: Re-validate the object
+  Command: ocfl validate --object=/workspace/objects/obj-006
+  Expected result: Object should pass validation (assuming no other issues)
+
+================================================================================
+DETAILED CORRECTION EXAMPLE
+================================================================================
+
+Original inventory.json (lines 11-25):
+  "versions": {
+    "v1": {
+      "created": "2019-01-01T02:03:04",
+      "state": {
+        "43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f": [
+          "a_file.txt"
+        ]
+      },
+      "message": "A log message",
+      "user": {
+        "name": "A Person",
+        "address": "https://orcid.org/0000-0000-0000-0000"
+      }
+    }
+  }
+
+Corrected inventory.json (lines 11-25):
+  "versions": {
+    "v1": {
+      "created": "2019-01-01T02:03:04Z",
+      "state": {
+        "43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f": [
+          "a_file.txt"
+        ]
+      },
+      "message": "A log message",
+      "user": {
+        "name": "A Person",
+        "address": "https://orcid.org/0000-0000-0000-0000"
+      }
+    }
+  }
+
+================================================================================
+OCFL SPECIFICATION REFERENCE
+================================================================================
+
+According to OCFL 1.1 specification:
+- The 'created' field is REQUIRED in each version block
+- The timestamp MUST follow RFC3339 format
+- RFC3339 requires explicit timezone information (UTC 'Z' or offset)
+- This ensures unambiguous timestamp interpretation across systems
+
+RFC3339 Format Requirements:
+  YYYY-MM-DDTHH:MM:SS[.fraction]Z or ±HH:MM
+
+  Valid examples:
+  - 2019-01-01T02:03:04Z (UTC)
+  - 2019-01-01T02:03:04+00:00 (UTC with offset)
+  - 2019-01-01T02:03:04-05:00 (EST timezone)
+
+================================================================================

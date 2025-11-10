@@ -1,0 +1,401 @@
+OCFL OBJECT VALIDATION SUMMARY REPORT
+=====================================
+Generated: 2025-11-09
+Total Objects Validated: 81
+
+OVERVIEW
+--------
+Valid Objects: 25
+Invalid Objects: 56
+
+VALIDATION RESULTS BY OBJECT
+-----------------------------
+
+VALID OBJECTS (25):
+- obj-057: VALID
+- obj-058: VALID
+- obj-059: VALID
+- obj-060: VALID
+- obj-061: VALID
+- obj-062: VALID
+- obj-063: VALID
+- obj-064: VALID
+- obj-065: VALID
+- obj-066: VALID
+- obj-067: VALID
+- obj-068: VALID
+- obj-069: VALID (with stylistic warning W001 - zero-padded version names)
+- obj-070: VALID (with warnings W007 - missing recommended fields)
+- obj-071: VALID (with warning W002 - extra directory not in inventory)
+- obj-072: VALID (with warnings W008, W009 - user metadata recommendations)
+- obj-073: VALID (with warning W004 - digestAlgorithm sha256)
+- obj-074: VALID (with warning W009 - user address not URI)
+- obj-075: VALID (with warnings W001, W004, W005)
+- obj-076: VALID (with warning W013 - unregistered extension)
+- obj-077: VALID (with warning W007 - missing message field)
+- obj-078: VALID (with warning W004 - sha256 algorithm)
+- obj-079: VALID (with warning W010 - missing v1/inventory.json)
+- obj-080: VALID (with warnings W011 - version metadata inconsistencies)
+- obj-081: VALID (with warnings W005 - ID not URI)
+
+INVALID OBJECTS (56) - DETAILED ERROR BREAKDOWN:
+
+obj-001: INVALID - E066
+  Issue: v1 and v2 inventory.json files have different logical states than root
+  Report: logs/obj-001.txt
+
+obj-002: INVALID - E040
+  Issue: v2/inventory.json 'head' field points to v3 instead of v2
+  Report: logs/obj-002.txt
+
+obj-003: INVALID - E095
+  Issue: Path conflict - "sub-path" used as both file and directory prefix
+  Report: logs/obj-003.txt
+
+obj-004: INVALID - E036, E040
+  Issue: 'head' field is JSON object instead of string
+  Report: logs/obj-004.txt
+
+obj-005: INVALID - E066, W004
+  Issue: Digest algorithm mismatch, invalid state entry, root uses sha256
+  Report: logs/obj-005.txt
+
+obj-006: INVALID - E048, E049
+  Issue: Timestamp missing timezone designator (not RFC3339 compliant)
+  Report: logs/obj-006.txt
+
+obj-007: INVALID - E093
+  Issue: MD5 fixity checksum mismatch for v1/content/test.txt
+  Report: logs/obj-007.txt
+
+obj-008: INVALID - E010
+  Issue: Missing versions in sequence (v2, v3, v6 missing)
+  Report: logs/obj-008.txt
+
+obj-009: INVALID - E048, E049
+  Issue: Timestamp missing seconds (abbreviated ISO 8601 format)
+  Report: logs/obj-009.txt
+
+obj-010: INVALID - E052
+  Issue: Invalid paths with relative traversal (../) and absolute paths (/)
+  Report: logs/obj-010.txt
+
+obj-011: INVALID - E099
+  Issue: Leading slash in manifest paths, unnormalized paths with ".."
+  Report: logs/obj-011.txt
+
+obj-012: INVALID - E023, W007, W009
+  Issue: file2.txt exists but not declared in inventory manifest
+  Report: logs/obj-012.txt
+
+obj-013: INVALID - E060
+  Issue: Root inventory.json.sha512 checksum doesn't match actual file
+  Report: logs/obj-013.txt
+
+obj-014: INVALID - E010
+  Issue: Missing v3 directory in version sequence
+  Report: logs/obj-014.txt
+
+obj-015: INVALID - E015, E092
+  Issue: Files in version directories instead of content directories
+  Report: logs/obj-015.txt
+
+obj-016: INVALID - E036, W005
+  Issue: Missing required 'id' field in inventory.json
+  Report: logs/obj-016.txt
+
+obj-017: INVALID - E017
+  Issue: contentDirectory contains '/' (should be simple directory name)
+  Report: logs/obj-017.txt
+
+obj-018: INVALID - E096, E107
+  Issue: Duplicate manifest entries with different case (digest conflict)
+  Report: logs/obj-018.txt
+
+obj-019: INVALID - E099
+  Issue: Absolute path in fixity section, path normalization issues
+  Report: logs/obj-019.txt
+
+obj-020: INVALID - E101
+  Issue: Duplicate logical path in manifest (v1/content/test.txt appears 3x)
+  Report: logs/obj-020.txt
+
+obj-021: INVALID - E066
+  Issue: v1/inventory.json contains incorrect digest for file-1.txt
+  Report: logs/obj-021.txt
+
+obj-022: INVALID - E001, W007
+  Issue: Invalid extra_file in object root
+  Report: logs/obj-022.txt
+
+obj-023: INVALID - E007
+  Issue: NAMASTE declaration file contains incorrect content
+  Report: logs/obj-023.txt
+
+obj-024: INVALID - E046
+  Issue: Root inventory missing v2 version but v2 directory exists
+  Report: logs/obj-024.txt
+
+obj-025: INVALID - E050, E107
+  Issue: Case sensitivity mismatch in digest (lowercase vs uppercase)
+  Report: logs/obj-025.txt
+
+obj-026: INVALID
+  Issue: Missing OCFL version declaration file and inventory.json
+  Report: logs/obj-026.txt
+
+obj-027: INVALID - E107, W007, W009
+  Issue: file2.txt in manifest but not in version state
+  Report: logs/obj-027.txt
+
+obj-028: INVALID - E025
+  Issue: Invalid digest algorithm "md5" (must be sha512 or sha256)
+  Report: logs/obj-028.txt
+
+obj-029: INVALID - E064
+  Issue: v1/inventory.json formatting differs from root (not byte-identical)
+  Report: logs/obj-029.txt
+
+obj-030: INVALID - E060
+  Issue: v1/inventory.json.sha512 contains incorrect checksum
+  Report: logs/obj-030.txt
+
+obj-031: INVALID - E061
+  Issue: Sidecar file contains hash plus "inventory.json" text
+  Report: logs/obj-031.txt
+
+obj-032: INVALID - E040
+  Issue: Head pointer is v1 but v2 exists (not most recent)
+  Report: logs/obj-032.txt
+
+obj-033: INVALID - E092
+  Issue: Missing content file v1/content/bonus.txt referenced in manifest
+  Report: logs/obj-033.txt
+
+obj-034: INVALID - E041, W007
+  Issue: Missing required 'manifest' field in inventory.json
+  Report: logs/obj-034.txt
+
+obj-035: INVALID - E040, W007
+  Issue: Head points to v2 but only v1 directory exists
+  Report: logs/obj-035.txt
+
+obj-036: INVALID - E063
+  Issue: Empty object - only contains .keep file, no OCFL structure
+  Report: logs/obj-036.txt
+
+obj-037: INVALID - E058, E060
+  Issue: Missing root inventory.json.sha512 sidecar file
+  Report: logs/obj-037.txt
+
+obj-038: INVALID
+  Issue: v2 uses older OCFL spec (1.0) than v1 (1.1) - downgrade not allowed
+  Report: logs/obj-038.txt
+
+obj-039: INVALID - E019, W002, E092
+  Issue: contentDirectory mismatch between root and v1 inventories
+  Report: logs/obj-039.txt
+
+obj-040: INVALID - E001
+  Issue: v2 is a file instead of directory
+  Report: logs/obj-040.txt
+
+obj-041: INVALID
+  Issue: SHA512 checksum mismatches for file-1.txt and file-2.txt
+  Report: logs/obj-041.txt
+
+obj-042: INVALID - E008
+  Issue: Missing 'head' field, empty versions, no version entries
+  Report: logs/obj-042.txt
+
+obj-043: INVALID - E097
+  Issue: MD5 fixity digest conflict (uppercase and lowercase variants)
+  Report: logs/obj-043.txt
+
+obj-044: INVALID - E001, W007
+  Issue: Illegal extra_dir directory in object root
+  Report: logs/obj-044.txt
+
+obj-045: INVALID - E036, E040, E011
+  Issue: Missing required 'head' field in inventory.json
+  Report: logs/obj-045.txt
+
+obj-046: INVALID - E063
+  Issue: Missing inventory.json files (root and v1)
+  Report: logs/obj-046.txt
+
+obj-047: INVALID - E012
+  Issue: Inconsistent version padding (v01-v09 vs v10)
+  Report: logs/obj-047.txt
+
+obj-048: INVALID - E066
+  Issue: v1/inventory.json state differs from root inventory
+  Report: logs/obj-048.txt
+
+obj-049: INVALID - E067, W007, W013
+  Issue: Invalid file in extensions directory, unregistered extension
+  Report: logs/obj-049.txt
+
+obj-050: INVALID - E095
+  Issue: Path conflict - file-1.txt mapped to multiple digests
+  Report: logs/obj-050.txt
+
+obj-051: INVALID - E037
+  Issue: v1/inventory.json 'id' doesn't match root inventory
+  Report: logs/obj-051.txt
+
+obj-052: INVALID
+  Issue: Missing NAMASTE declaration file
+  Report: logs/obj-052.txt
+
+obj-053: INVALID - E093
+  Issue: SHA512 checksum mismatch for v1/content/test.txt
+  Report: logs/obj-053.txt
+
+obj-054: INVALID - E036, E048, W007
+  Issue: Malformed inventory.json with incorrect field types
+  Report: logs/obj-054.txt
+
+obj-055: INVALID - E040, E107
+  Issue: Invalid version format "1" instead of "v0001"
+  Report: logs/obj-055.txt
+
+obj-056: INVALID - E050, E107
+  Issue: Digest in state not in manifest (unused/invalid digest)
+  Report: logs/obj-056.txt
+
+ERROR CATEGORY BREAKDOWN
+------------------------
+
+Inventory Structure & Metadata Issues (26 objects):
+- E066: Inventory logical state inconsistencies (obj-001, obj-005, obj-021, obj-048)
+- E036: Missing required fields (obj-004, obj-016, obj-034, obj-045, obj-054)
+- E040/E011: Invalid or missing head field (obj-002, obj-004, obj-032, obj-035, obj-042, obj-045, obj-055)
+- E037: ID mismatch between inventories (obj-051)
+- E041: Missing manifest field (obj-034)
+- E046: Missing version declaration (obj-024)
+- E064: Inventory format/byte differences (obj-029)
+
+Checksum & Integrity Issues (13 objects):
+- E060: Checksum mismatch in sidecar files (obj-013, obj-030)
+- E061: Invalid sidecar file format (obj-031)
+- E058: Missing sidecar files (obj-037)
+- E093: Content file checksum mismatch (obj-007, obj-053)
+- E097: Digest conflict in fixity (obj-043)
+- E096: Manifest digest conflict (obj-018)
+- E025: Invalid digest algorithm (obj-028)
+- Multiple digest issues (obj-041)
+
+Path & File Structure Issues (16 objects):
+- E052: Invalid path specifications (obj-010)
+- E099: Absolute or unnormalized paths (obj-011, obj-019)
+- E095: Path conflicts (obj-003, obj-050)
+- E101: Duplicate logical paths (obj-020)
+- E017: Invalid contentDirectory value (obj-017)
+- E019: contentDirectory mismatch (obj-039)
+- E001: Invalid files in root (obj-022, obj-040, obj-044)
+- E015: Files in wrong locations (obj-015)
+- E092: Missing content files (obj-015, obj-033, obj-039)
+
+Version Management Issues (6 objects):
+- E010: Missing versions in sequence (obj-008, obj-014)
+- E012: Inconsistent version padding (obj-047)
+- E040: Head not pointing to most recent (obj-032, obj-035)
+- Specification version downgrade (obj-038)
+
+Manifest & State Issues (8 objects):
+- E023: Undeclared files in manifest (obj-012)
+- E050: Digest in state not in manifest (obj-025, obj-056)
+- E107: Unused manifest digests (obj-018, obj-025, obj-027, obj-055)
+
+Timestamp Issues (2 objects):
+- E048/E049: Invalid timestamp format (obj-006, obj-009)
+
+Missing/Empty Objects (3 objects):
+- E063: Missing core files (obj-026, obj-036, obj-046, obj-052)
+
+Extension Issues (1 object):
+- E067: Invalid extension structure (obj-049)
+
+NAMASTE Issues (2 objects):
+- E007: Invalid NAMASTE content (obj-023)
+- Missing NAMASTE file (obj-052)
+
+Other Issues (2 objects):
+- E008: Empty object structure (obj-042)
+- Malformed field types (obj-054)
+
+COMMON ERROR PATTERNS
+---------------------
+
+1. Inventory Consistency (13 objects): Most common issue category involving
+   inconsistencies between root and version inventories, or missing required
+   inventory fields.
+
+2. Checksum/Integrity (13 objects): Files modified without updating checksums,
+   or incorrect checksum files.
+
+3. Path Format (11 objects): Invalid paths including absolute paths, relative
+   traversal, unnormalized paths, or path conflicts.
+
+4. Version Management (6 objects): Missing versions, incorrect head pointers,
+   or inconsistent version numbering.
+
+5. Manifest/State Mismatches (8 objects): Files referenced in one place but
+   not another, or unused digest entries.
+
+RECOMMENDATIONS
+---------------
+
+1. Inventory Maintenance:
+   - Always update root inventory when creating new versions
+   - Ensure version inventories match root for shared version blocks
+   - Validate all required fields are present (id, head, type, etc.)
+
+2. Checksum Management:
+   - Recalculate checksums whenever inventory files are modified
+   - Ensure sidecar files contain only the digest hash (no filenames)
+   - Use sha512 or sha256 algorithms as required by OCFL 1.1
+
+3. Path Specifications:
+   - Use only relative paths (no leading /)
+   - Avoid path traversal (../)
+   - Normalize all paths (no // or redundant elements)
+   - Ensure unique logical paths in state mappings
+
+4. Version Control:
+   - Maintain continuous version sequences without gaps
+   - Keep consistent version padding throughout object lifecycle
+   - Update head pointer when adding new versions
+   - Never downgrade OCFL specification version
+
+5. Content Organization:
+   - Store content files in proper content directories
+   - Declare all content files in manifest
+   - Reference all manifest entries in at least one version state
+   - Remove or properly declare any extra files
+
+NEXT STEPS
+----------
+
+For each invalid object, a detailed report has been generated in the logs
+directory. Each report contains:
+- Summary of validation errors with OCFL error codes
+- Detailed analysis of the issues
+- Recommended steps for fixing the object
+- Impact assessment and root cause analysis
+
+Priority levels for remediation:
+1. CRITICAL (26 objects): Structural issues preventing basic OCFL compliance
+   - Missing required fields, invalid file structures, empty objects
+
+2. HIGH (20 objects): Integrity and consistency issues
+   - Checksum mismatches, inventory inconsistencies, version problems
+
+3. MEDIUM (10 objects): Path and reference issues
+   - Invalid paths, unused digests, manifest/state mismatches
+
+All detailed reports are available in: /workspace/logs/obj-*.txt
+
+=====================================
+END OF SUMMARY REPORT

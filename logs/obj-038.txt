@@ -1,0 +1,145 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: obj-038
+Validation Date: 2025-11-09
+Status: INVALID
+
+================================================================================
+VALIDATION ERROR SUMMARY
+================================================================================
+
+The object failed OCFL specification validation with the following error:
+
+ERROR: v2/inventory.json uses an older OCFL specification than the previous
+       version
+
+This error indicates a specification version inconsistency across the object's
+version inventory files.
+
+================================================================================
+DETAILED ANALYSIS
+================================================================================
+
+1. SPECIFICATION VERSION INCONSISTENCY ISSUE
+
+   The OCFL specification version in the inventory files is inconsistent:
+
+   - v1/inventory.json specifies:
+     "type": "https://ocfl.io/1.1/spec/#inventory"
+     (OCFL Specification Version 1.1)
+
+   - v2/inventory.json specifies:
+     "type": "https://ocfl.io/1.0/spec/#inventory"
+     (OCFL Specification Version 1.0)
+
+   - v3/inventory.json specifies:
+     "type": "https://ocfl.io/1.1/spec/#inventory"
+     (OCFL Specification Version 1.1)
+
+   - Root inventory.json specifies:
+     "type": "https://ocfl.io/1.1/spec/#inventory"
+     (OCFL Specification Version 1.1)
+
+2. OCFL SPECIFICATION REQUIREMENT VIOLATION
+
+   According to the OCFL specification, once an object is created with a
+   specific OCFL version, all subsequent version updates must maintain that
+   same specification version. The specification version cannot be downgraded
+   in later versions.
+
+   Violation:
+   - The object started with OCFL v1.1 (v1)
+   - v2 downgraded to OCFL v1.0 (invalid progression)
+   - v3 attempted to upgrade back to OCFL v1.1 (not allowed after downgrade)
+
+3. OBJECT VERSION HISTORY
+
+   v1 (Initial): OCFL v1.1
+   v2 (Update):  OCFL v1.0  <- VIOLATION POINT
+   v3 (Update):  OCFL v1.1  <- Cannot recover after downgrade
+
+4. FILE STRUCTURE
+
+   The object structure appears otherwise sound:
+   - All version directories exist (v1, v2, v3)
+   - v1 and v2 have content subdirectories
+   - v3 has only inventory files (this is valid for append-only content)
+   - Root inventory.json and checksums are present
+   - OCFL declaration file present (0=ocfl_object_1.1)
+
+5. CONTENT CONSISTENCY
+
+   The manifest and state information across versions appear consistent:
+   - manifest maps digest hashes to content paths
+   - Each version's state correctly references content
+   - Fixity information (md5, sha1) is included for verification
+
+================================================================================
+ROOT CAUSE
+================================================================================
+
+The root cause of this validation failure is that v2/inventory.json was
+created with OCFL specification version 1.0, which represents a downgrade from
+the v1/inventory.json specification version 1.1. OCFL does not permit this
+kind of specification downgrade in an object's version history.
+
+================================================================================
+RECOMMENDED STEPS TO FIX
+================================================================================
+
+Option 1: Update v2/inventory.json (RECOMMENDED)
+-----------
+1. Open /workspace/objects/obj-038/v2/inventory.json
+2. Change line 49 from:
+   "type": "https://ocfl.io/1.0/spec/#inventory"
+   to:
+   "type": "https://ocfl.io/1.1/spec/#inventory"
+3. Recalculate the SHA512 checksum of the modified inventory.json
+4. Update the inventory.json.sha512 file with the new checksum
+5. Run: ocfl validate --object=/workspace/objects/obj-038
+
+Option 2: Regenerate All Inventory Files
+-----------
+If the specification downgrade was intentional (perhaps for compatibility),
+you would need to:
+1. Create a new object with all versions using OCFL v1.0 consistently
+2. This would require rebuilding the entire object from scratch
+3. This approach is generally not recommended unless there's a specific
+   compatibility requirement
+
+Option 3: Use the Root Inventory Only
+-----------
+1. Delete v2/inventory.json and v2/inventory.json.sha512
+2. Ensure all version updates are reflected only in the root inventory.json
+3. Note: This may have other implications depending on your OCFL
+   implementation requirements
+
+================================================================================
+VERIFICATION STEPS
+================================================================================
+
+After applying Option 1, verify the fix by:
+
+1. Run the validation again:
+   ocfl validate --object=/workspace/objects/obj-038
+
+2. Confirm the output shows no errors
+
+3. Verify checksums are correct:
+   sha512sum /workspace/objects/obj-038/v2/inventory.json
+
+4. Compare against stored checksum:
+   cat /workspace/objects/obj-038/v2/inventory.json.sha512
+
+================================================================================
+ADDITIONAL NOTES
+================================================================================
+
+- The OCFL specification version refers to the format specification used to
+  create the inventory, not to content versions
+- Once an object chooses a specification version, it must maintain that
+  version throughout its entire version history
+- The primary inventory.json at the object root correctly shows OCFL v1.1
+- This is a specification compliance issue, not a content integrity issue
+- No content files appear to be corrupted or missing
+
+================================================================================

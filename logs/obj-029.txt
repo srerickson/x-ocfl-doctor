@@ -1,0 +1,110 @@
+OCFL OBJECT VALIDATION REPORT
+Object: obj-029
+Date: 2025-11-09
+Status: INVALID
+
+================================================================================
+VALIDATION ERROR SUMMARY
+================================================================================
+
+The OCFL object failed validation with the following error:
+  ERROR CODE: E064
+  MESSAGE: v1/inventory.json is not the same as the root inventory: digests don't match
+
+================================================================================
+ANALYSIS OF THE ISSUE
+================================================================================
+
+The validation error indicates a digest (checksum) mismatch between two critical
+inventory files in the OCFL object:
+
+1. Root Inventory File: /workspace/objects/obj-029/inventory.json
+   - Actual SHA512 digest: 3489e29f9099e2b147d2ef36929208cda81005e16f5436999d5e596edbd02cb1e7d67242b70ceb7468ba32f1d7daef7e4917c52703df1f467288bb5f20ec9fa2
+   - Declared digest in: inventory.json.sha512
+
+2. Version 1 Inventory File: /workspace/objects/obj-029/v1/inventory.json
+   - Actual SHA512 digest: f33e22793ab3a084597c43587fdfcd4d656ebc4ec8a8c5c39feb38766b25b1098fd50d909572bb48a84a376ef52823d81b101466e082b70f22234bd144600eba
+   - Declared digest in: v1/inventory.json.sha512
+
+ROOT INVENTORY ANALYSIS:
+The root inventory.json is stored in a single-line JSON format (non-pretty-printed).
+It contains the object metadata with the following key information:
+  - Digest Algorithm: sha512
+  - Object ID: ark:123/abc
+  - Head Version: v1
+  - Contains manifest mapping digest to file paths
+  - Contains version metadata for v1
+
+VERSION 1 INVENTORY ANALYSIS:
+The v1/inventory.json is stored in a pretty-printed/formatted JSON format with:
+  - The exact same logical content as the root inventory.json
+  - Different formatting (whitespace and line breaks)
+  - Different order of object properties
+  - Both files declare the same content and structure
+
+CORE PROBLEM:
+In OCFL 1.1 specification, the root inventory.json and the version inventory files
+must be byte-for-byte identical, including whitespace and formatting. However, the
+two inventory files have different formatting:
+  - inventory.json: Compact, single-line format
+  - v1/inventory.json: Pretty-printed, multi-line format with indentation
+
+This formatting difference causes the digests to not match, which is a violation
+of the OCFL specification requirement that inventory files must be exactly identical.
+
+================================================================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+================================================================================
+
+To fix this object, you need to make the inventory files byte-for-byte identical:
+
+OPTION 1: Update v1/inventory.json to match root inventory.json format
+  1. Copy the content from inventory.json to v1/inventory.json exactly
+  2. This will make them byte-for-byte identical
+  3. Recalculate the SHA512 digest for both files
+  4. Update both inventory.json.sha512 and v1/inventory.json.sha512 files
+
+OPTION 2: Update root inventory.json to match v1/inventory.json format
+  1. Copy the content from v1/inventory.json to inventory.json exactly
+  2. This will make them byte-for-byte identical
+  3. Recalculate the SHA512 digest for both files
+  4. Update both inventory.json.sha512 and v1/inventory.json.sha512 files
+
+DETAILED FIX PROCEDURE:
+
+1. Choose which format to use (Option 1 recommended - use compact format)
+
+2. Make both files identical:
+   cp /workspace/objects/obj-029/inventory.json /workspace/objects/obj-029/v1/inventory.json
+
+3. Recalculate and update the digest files:
+   sha512sum /workspace/objects/obj-029/inventory.json | awk '{print $1}' > /workspace/objects/obj-029/inventory.json.sha512
+   sha512sum /workspace/objects/obj-029/v1/inventory.json | awk '{print $1}' > /workspace/objects/obj-029/v1/inventory.json.sha512
+
+4. Verify the fix:
+   ocfl validate --object=/workspace/objects/obj-029
+
+The object should then pass validation successfully.
+
+================================================================================
+OBJECT STRUCTURE INFORMATION
+================================================================================
+
+Object Location: /workspace/objects/obj-029
+OCFL Version Declaration: 0=ocfl_object_1.1
+
+Files in Object:
+  - 0=ocfl_object_1.1 (OCFL version declaration)
+  - inventory.json (Root inventory - compact format)
+  - inventory.json.sha512 (Root inventory digest)
+  - v1/inventory.json (Version 1 inventory - pretty-printed format)
+  - v1/inventory.json.sha512 (Version 1 inventory digest)
+  - v1/content/a_file.txt (Stored content file)
+
+Content File Verification:
+  - File: a_file.txt
+  - Location: v1/content/a_file.txt
+  - Content: "Hello! I am a file."
+  - The content file and its manifest entry appear to be correctly referenced
+
+================================================================================

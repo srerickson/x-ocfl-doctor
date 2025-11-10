@@ -1,0 +1,133 @@
+OCFL OBJECT VALIDATION REPORT
+Object ID: obj-004
+Validation Date: 2025-11-09
+Status: INVALID
+
+================================================================================
+VALIDATION ERRORS SUMMARY
+================================================================================
+
+The OCFL object at /workspace/objects/obj-004 contains multiple critical errors
+that prevent it from being a valid OCFL 1.1 compliant object:
+
+1. INVALID 'head' FIELD FORMAT (E036)
+   - Error Code: E036 (required field is missing or has unexpected json value)
+   - Issue: The 'head' field contains a JSON object instead of a string
+   - Current Value: { "should not": "be a JSON object" }
+   - Expected Value: A string representing the most recent version (e.g., "v1")
+
+2. INVALID VERSION SPECIFICATION (E040)
+   - Error Code: E040 (invalid version)
+   - Issue: The head field references an invalid version format
+   - Root Cause: The head field is not a proper version string
+
+3. HEAD VERSION NOT MOST RECENT (E040)
+   - Error Code: E040 (version head not most recent version)
+   - Issue: Even if the head field were valid, it would not point to v1,
+     which is the most recent (and only) version in the object
+   - Current State: Only v1 exists in versions, but head is malformed
+
+4. MISSING RECOMMENDED METADATA FIELDS (Warnings)
+   - Error Code: W007 (version missing recommended field)
+   - Version v1 is missing: 'message'
+   - Version v1 is missing: 'user'
+   - These are recommended but not required fields per OCFL 1.1 spec
+
+================================================================================
+DETAILED ANALYSIS
+================================================================================
+
+CURRENT INVENTORY.JSON STRUCTURE:
+Location: /workspace/objects/obj-004/inventory.json
+
+The root cause of validation failures is in the inventory.json file:
+
+- Line 3: "head": { "should not": "be a JSON object" }
+  This is the PRIMARY ISSUE. The 'head' field must be a string value, not an
+  object. According to OCFL 1.1 specification, 'head' should contain the version
+  string (e.g., "v1", "v2", etc.) representing the most recent version.
+
+- The object structure itself is otherwise reasonable:
+  * digestAlgorithm is correctly set to "sha512"
+  * id is set to "ark:123/abc"
+  * type is correctly "https://ocfl.io/1.1/spec/#inventory"
+  * manifest correctly references the content file
+  * versions contains a single version "v1" with proper state mapping
+
+COMPARISON WITH VALID OBJECT:
+Looking at /workspace/objects/obj-003/inventory.json (which has similar structure),
+the key difference is:
+
+Valid object (obj-003):
+  "head": "v1",
+
+Invalid object (obj-004):
+  "head": { "should not": "be a JSON object" },
+
+OBJECT STRUCTURE:
+- Root directory: /workspace/objects/obj-004/
+- OCFL version declaration: 0=ocfl_object_1.1 (correct)
+- Files:
+  * inventory.json (BROKEN - invalid 'head' field)
+  * inventory.json.sha512 (checksum file)
+  * v1/
+    - inventory.json (copy from root)
+    - inventory.json.sha512 (checksum)
+    - content/
+      - a_file.txt (actual content file)
+
+================================================================================
+RECOMMENDED STEPS FOR FIXING
+================================================================================
+
+STEP 1: FIX THE 'head' FIELD (CRITICAL)
+The 'head' field in the inventory.json must be changed from:
+  "head": { "should not": "be a JSON object" }
+
+To:
+  "head": "v1"
+
+This change must be made in TWO locations:
+1. /workspace/objects/obj-004/inventory.json
+2. /workspace/objects/obj-004/v1/inventory.json
+
+STEP 2: UPDATE INVENTORY CHECKSUMS
+After modifying the inventory.json files, the SHA-512 checksums must be
+recalculated and updated in the corresponding .sha512 files.
+
+Use the following commands:
+  cd /workspace/objects/obj-004
+  sha512sum inventory.json > inventory.json.sha512
+  sha512sum v1/inventory.json > v1/inventory.json.sha512
+
+STEP 3: (OPTIONAL) ADD RECOMMENDED METADATA
+While not required, it's recommended to add 'message' and 'user' fields to
+version v1 for better documentation:
+
+Example addition to the v1 version object:
+  "v1": {
+    "created": "2019-01-01T02:03:04Z",
+    "message": "Initial version",
+    "user": {
+      "name": "User Name",
+      "address": "mailto:user@example.org"
+    },
+    "state": { ... }
+  }
+
+STEP 4: VALIDATE AFTER FIXES
+After making corrections, re-run validation:
+  ocfl validate --object /workspace/objects/obj-004
+
+The object should pass all validation checks.
+
+================================================================================
+ERROR CODES REFERENCE
+================================================================================
+
+E011: Invalid version number format (must be vN where N is a non-negative integer)
+E036: Required field is missing or has unexpected JSON value
+E040: Invalid version or head references non-existent/invalid version
+W007: Recommended field missing (message, user, state)
+
+================================================================================

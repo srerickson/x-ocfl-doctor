@@ -1,0 +1,104 @@
+OCFL OBJECT VALIDATION REPORT
+Object: obj-030
+Date: 2025-11-09
+Status: INVALID
+
+================================================================================
+VALIDATION ERROR SUMMARY
+================================================================================
+
+The OCFL object at /workspace/objects/obj-030 failed validation with the following error:
+
+ERROR CODE: E060 - Inventory checksum mismatch
+
+Error Message:
+"unexpected sha512 for 'v1/inventory.json.sha512': '032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a', expected='cf60208ec99d58e971bc21fdf05356706d5b9cc2af13ed3edae5c0e54fc23a6d93b91c9ec1ccf21f9094ca170ac9c214a005382ed69e71e8aaf87b4619c93ffb'"
+
+================================================================================
+DETAILED ANALYSIS
+================================================================================
+
+ISSUE IDENTIFIED:
+The v1/inventory.json.sha512 file contains an incorrect checksum value for the
+v1/inventory.json file.
+
+CHECKSUM DETAILS:
+- Expected (in v1/inventory.json.sha512): cf60208ec99d58e971bc21fdf05356706d5b9cc2af13ed3edae5c0e54fc23a6d93b91c9ec1ccf21f9094ca170ac9c214a005382ed69e71e8aaf87b4619c93ffb
+- Actual (calculated):                     032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+
+ROOT CAUSE:
+The v1/inventory.json file has been modified since the checksum was originally
+recorded. This violates the OCFL specification requirement that inventory files
+and their corresponding checksums must match exactly.
+
+OBJECT STRUCTURE:
+The object contains:
+- Root inventory.json with head="v2" (contains v1 and v2 version definitions)
+- v1/inventory.json with head="v1" (contains only v1 version definition)
+- v1/inventory.json.sha512 with mismatched checksum
+- v2 version directory structure
+
+KEY OBSERVATION:
+The root inventory.json specifies head="v2" and includes definitions for both v1
+and v2 versions. However, the v1/inventory.json (version inventory) was modified
+after its checksum was recorded, making the checksums inconsistent.
+
+================================================================================
+RECOMMENDED FIXES
+================================================================================
+
+OPTION 1: Correct the v1/inventory.json.sha512 file (RECOMMENDED)
+If v1/inventory.json is the correct current state:
+1. Calculate the correct SHA512 checksum:
+   $ sha512sum /workspace/objects/obj-030/v1/inventory.json
+   Result: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+
+2. Update v1/inventory.json.sha512 to contain:
+   032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a inventory.json
+
+3. Verify the fix by running:
+   $ ocfl validate --object /workspace/objects/obj-030
+
+OPTION 2: Restore v1/inventory.json to its original state
+If the original content is available and the checksum cf60208... represents the
+correct state, restore v1/inventory.json to match that checksum.
+
+OPTION 3: Complete rebuild
+If neither version can be definitively restored, consider:
+1. Understanding the complete version history
+2. Reconstructing the inventory files to be consistent
+3. Ensuring all version inventories and their checksums are in sync
+
+================================================================================
+COMPLIANCE NOTES
+================================================================================
+
+OCFL SPECIFICATION REQUIREMENTS:
+- OCFL 1.1 requires that inventory files maintain data integrity through
+  cryptographic checksums
+- Inventory files cannot be modified without updating their corresponding
+  checksum files
+- All version-specific inventory files (v1/inventory.json) must have matching
+  checksums in their corresponding checksum files (v1/inventory.json.sha512)
+
+IMPACT:
+This validation failure indicates a potential integrity issue in the object's
+version history. The object cannot be considered a valid OCFL object until this
+discrepancy is resolved.
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Determine which version of v1/inventory.json is correct (the current file
+   or the one that matches the expected checksum)
+
+2. If the current file is correct, apply OPTION 1 above
+
+3. If a previous version should be restored, apply OPTION 2 above
+
+4. After making corrections, re-run validation to confirm success
+
+5. Document the cause of the checksum mismatch to prevent recurrence
+
+================================================================================

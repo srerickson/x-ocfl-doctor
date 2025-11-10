@@ -1,0 +1,191 @@
+OCFL OBJECT VALIDATION REPORT
+=============================
+Object ID: ark:123/abc
+Object Path: /workspace/objects/obj-049
+Validation Date: 2025-11-09
+Status: INVALID
+
+================================================================================
+VALIDATION ERRORS SUMMARY
+================================================================================
+
+The object validation produced 4 issues (2 warnings and 2 errors):
+
+1. ERROR (E067): extensions directory: invalid file: extra_file
+   - Location: /workspace/objects/obj-049/extensions/extra_file
+   - Severity: Critical
+
+2. ERROR: object has errors
+   - Summary status indicating one or more critical errors found
+
+3. WARNING (W007): root inventory.json: version v1 missing recommended field: 'message'
+   - Location: /workspace/objects/obj-049/inventory.json
+   - Field: message in version v1
+   - Severity: Minor (recommended, not required)
+
+4. WARNING (W007): root inventory.json: version v1 missing recommended field: 'user'
+   - Location: /workspace/objects/obj-049/inventory.json
+   - Field: user in version v1
+   - Severity: Minor (recommended, not required)
+
+5. WARNING (W013): extensions directory: unrecognized extension name: "unregistered"
+   - Location: /workspace/objects/obj-049/extensions/unregistered
+   - Extension: unregistered
+   - Severity: Warning (extension not registered in OCFL spec)
+
+================================================================================
+DETAILED ANALYSIS
+================================================================================
+
+CRITICAL ISSUE - Invalid File in Extensions Directory (E067):
+---------------------------------------------------------------
+File: /workspace/objects/obj-049/extensions/extra_file
+
+OCFL specification requires that the 'extensions' directory ONLY contain
+subdirectories representing registered or properly declared extensions. The
+presence of a regular file (extra_file) directly in the extensions directory
+is a violation of the OCFL structure.
+
+File Content:
+  "This an extra file that is not allowed in the extensions directory.
+   It should result in the object being reported as invalid."
+
+According to OCFL 1.1 specification, the extensions directory must only
+contain directories named after extension names, not loose files. This
+violates the structural requirements.
+
+UNREGISTERED EXTENSION WARNING (W013):
+--------------------------------------
+Location: /workspace/objects/obj-049/extensions/unregistered
+
+The object uses an extension named "unregistered", which is not a recognized
+or registered OCFL extension. This directory contains a subdirectory with
+content:
+  - unregistered/something_in_here
+
+While extensions allow for custom functionality, using an unregistered
+extension name means:
+1. The extension behavior is not officially documented
+2. Tools may not know how to properly interpret this extension
+3. It may cause interoperability issues across different OCFL implementations
+
+File Content:
+  "This would be a file that is something to do with the unregistered
+   extension that uses the directory "unregistered". Who knows what it might
+   be? It could be something very very interesting, or very very scary."
+
+MISSING RECOMMENDED FIELDS (W007):
+----------------------------------
+The inventory.json file is missing two recommended (but not required) fields
+in the version v1 metadata:
+
+1. "message": No message describing the version's contents or purpose
+2. "user": No user information indicating who created or modified this version
+
+Current version metadata only contains:
+  - "created": "2019-01-01T02:03:04Z"
+  - "state": {...}
+
+These fields are optional but recommended to provide context and provenance
+information about each version.
+
+OBJECT STRUCTURE:
+-----------------
+Object Declaration: 0=ocfl_object_1.1 ✓ (correct)
+Digest Algorithm: sha512 ✓
+Head Version: v1
+Object ID: ark:123/abc
+
+Content Structure:
+  - v1/content/a_file.txt
+  - v1/inventory.json
+  - v1/inventory.json.sha512
+  - inventory.json (root)
+  - inventory.json.sha512 (root)
+
+Extensions:
+  - extensions/extra_file [INVALID]
+  - extensions/unregistered/ [WARNING: unrecognized extension]
+
+================================================================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+================================================================================
+
+PRIORITY 1 - CRITICAL (Must fix to make object valid):
+------------------------------------------------------
+
+1. Remove the invalid file from extensions directory:
+   rm /workspace/objects/obj-049/extensions/extra_file
+
+   Rationale: This file directly violates OCFL structure requirements. The
+   extensions directory must only contain subdirectories for extension
+   definitions, never loose files.
+
+PRIORITY 2 - HIGH (Should fix for compliance):
+----------------------------------------------
+
+2. Either register the "unregistered" extension or remove it:
+
+   Option A - Remove the unregistered extension:
+     rm -rf /workspace/objects/obj-049/extensions/unregistered
+
+   Option B - Properly register and document the extension:
+     If this extension provides necessary functionality, consult the OCFL
+     extension specification and either:
+     a) Use a registered extension name if available
+     b) Create proper extension documentation
+     c) Work with OCFL community to register the custom extension
+
+   Rationale: Unregistered extensions may cause interoperability issues and
+   are not recognized by standard OCFL validators.
+
+PRIORITY 3 - OPTIONAL (Recommended for best practices):
+-------------------------------------------------------
+
+3. Add recommended fields to inventory.json version v1:
+
+   Update the "v1" entry in inventory.json versions section to include:
+
+   "v1": {
+     "created": "2019-01-01T02:03:04Z",
+     "message": "Initial version with original content",
+     "user": {
+       "name": "ObjectCreator",
+       "address": "user@example.org"
+     },
+     "state": {
+       ...
+     }
+   }
+
+   Rationale: While not required, these fields provide important provenance
+   and context information for the version.
+
+4. Update root inventory.json.sha512:
+
+   After making any changes to inventory.json, regenerate the SHA512 digest:
+
+   sha512sum /workspace/objects/obj-049/inventory.json > \
+     /workspace/objects/obj-049/inventory.json.sha512
+
+   Rationale: Ensures the digest file matches the current inventory.json
+   content for integrity verification.
+
+================================================================================
+VALIDATION COMMAND FOR VERIFICATION
+================================================================================
+
+After applying fixes, re-validate with:
+  ocfl validate --object /workspace/objects/obj-049
+
+Expected result after Priority 1 fixes:
+  - E067 error should be resolved
+  - Object validation should pass (with possible warnings about unregistered
+    extension if not removed)
+
+Expected result after all fixes:
+  - All errors resolved
+  - No critical validation issues
+  - Full OCFL 1.1 compliance achieved
+
+================================================================================

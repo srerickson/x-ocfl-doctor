@@ -1,0 +1,112 @@
+OCFL OBJECT VALIDATION REPORT
+Object: obj-015
+Validation Date: 2025-11-09
+Status: INVALID
+
+========================================
+VALIDATION ERRORS SUMMARY
+========================================
+
+The OCFL object at /workspace/objects/obj-015 failed validation with the following errors:
+
+1. ERROR CODE E015 (Unexpected file in version directories)
+   - Unexpected file in v1: a_file.txt
+   - Unexpected file in v2: a_file.txt
+   - Unexpected file in v3: a_file.txt
+
+2. ERROR CODE E092 (Missing content)
+   - Missing content: v1/a_file.txt
+   - Missing content: v2/a_file.txt
+   - Missing content: v3/a_file.txt
+
+========================================
+DETAILED ANALYSIS
+========================================
+
+Object Structure Issue:
+The main problem is that the manifest paths in the inventory.json reference files that should NOT exist in the version directories (v1, v2, v3). According to the OCFL specification, files referenced in the manifest should only exist in a dedicated content directory, not directly in the version directories.
+
+Manifest References (from root inventory.json):
+- SHA512: 43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f -> v1/a_file.txt
+- SHA512: 10c4f059fc9235474c75c5e4b48837d1fcd93f6bca273c1153deb568096e1ec18fe5cd13467e550ca9dcfe8d4f81b2f71d5951a169cbfb321445a9a3211be708 -> v2/a_file.txt
+- SHA512: 8ed2115b36fe2d4db1b5ddad63f0deb13db339d3ff17f69fafb8cc8e9a20b89add82933d544b5512350a7f85cfae7e7235409c364060653e39ef9b18a81976fb -> v3/a_file.txt
+
+Current Issue:
+The inventory.json is pointing to version directories (v1/a_file.txt, v2/a_file.txt, v3/a_file.txt) but the OCFL specification requires:
+1. Content files should be stored in a content directory (typically using a content path like "v1/content/..." or in a shared content directory)
+2. The manifest should reference the actual content directory paths
+3. Version directories should NOT contain the actual content files directly - they should only contain content paths in the state
+
+Structural Violation:
+- Files exist at: v1/a_file.txt, v2/a_file.txt, v3/a_file.txt
+- These are referenced directly in the manifest
+- This violates the OCFL structure requirements as manifest entries must reference content directory paths, not version directory paths
+
+========================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+========================================
+
+Option 1: Move files to proper content directory structure (RECOMMENDED)
+
+Step 1: Create a content directory in the root
+   mkdir -p /workspace/objects/obj-015/d
+
+Step 2: Calculate the proper content hash for each file and create content directories
+   (The hashes are already provided in the manifest)
+
+Step 3: Move files from version directories to content structure
+   - Move v1/a_file.txt to a content directory under /d/{first 2 chars}/{rest of hash}/
+   - Move v2/a_file.txt to appropriate content directory
+   - Move v3/a_file.txt to appropriate content directory
+
+Step 4: Update all inventory.json files to reference content directories instead of version directories
+   - Root inventory.json manifest paths need updating
+   - Each version's inventory.json needs updating
+
+Step 5: Remove the now-empty version-specific files (v1/a_file.txt, v2/a_file.txt, v3/a_file.txt)
+
+Step 6: Recalculate and update all inventory.json.sha512 checksums
+
+Step 7: Re-run validation: ocfl validate --object=/workspace/objects/obj-015
+
+Option 2: Restructure using proper OCFL layout
+
+The correct OCFL structure should be:
+/obj-015/
+  0=ocfl_object_1.1
+  inventory.json
+  inventory.json.sha512
+  v1/
+    inventory.json
+    inventory.json.sha512
+    content/
+      a_file.txt (or hash-based content path)
+  v2/
+    inventory.json
+    inventory.json.sha512
+    content/
+      a_file.txt (or hash-based content path)
+  v3/
+    inventory.json
+    inventory.json.sha512
+    content/
+      a_file.txt (or hash-based content path)
+
+Or with a deduplicated content structure:
+/obj-015/
+  0=ocfl_object_1.1
+  inventory.json
+  inventory.json.sha512
+  d/
+    43/{remaining hash}/a_file.txt (for v1)
+    10/{remaining hash}/a_file.txt (for v2)
+    8e/{remaining hash}/a_file.txt (for v3)
+  v1/inventory.json
+  v2/inventory.json
+  v3/inventory.json
+
+========================================
+SUMMARY
+========================================
+
+The object has fundamental structural errors where files are placed in version directories but the manifest references them as version directory paths rather than content directory paths. This violates OCFL specification requirements. The object needs to be restructured to properly separate content from version metadata, or the inventory files need to be corrected to reference a proper content directory structure.

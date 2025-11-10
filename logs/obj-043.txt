@@ -1,0 +1,99 @@
+OCFL OBJECT VALIDATION REPORT
+Object: obj-043
+Date: 2025-11-09
+Status: INVALID
+
+==============================================================================
+VALIDATION ERROR SUMMARY
+==============================================================================
+
+Error Code: E097 - Digest Conflict
+The OCFL validator detected a digest conflict in the fixity section of the
+root inventory.json file.
+
+==============================================================================
+DETAILED ANALYSIS OF THE ISSUE
+==============================================================================
+
+Location: /workspace/objects/obj-043/inventory.json
+Issue Type: Digest Conflict in Fixity Metadata
+
+Description:
+The inventory.json file contains a fixity block for MD5 checksums that has
+conflicting entries for the same file. Specifically, in the "fixity.md5"
+section, there are two entries pointing to the same file "v1/content/test.txt":
+
+1. "eb1a3227cdc3fedbaec2fe38bf6c044a": ["v1/content/test.txt"]
+2. "EB1A3227CDC3FEDBAEC2FE38BF6C044A": ["v1/content/test.txt"]
+
+These appear to be the same MD5 hash value but with different case
+representations (lowercase vs. uppercase). According to OCFL specifications,
+this violates the constraint that each digest value must be unique within
+the fixity section. The validator detected this as a digest conflict because
+the same file cannot be assigned to two different digest entries, even if
+they represent the same hash value with different casing.
+
+Root Cause:
+The fixity section was manually edited or incorrectly generated with duplicate
+entries for the same file using different case variations of the same MD5 hash.
+
+File Content Verification:
+Actual MD5 checksum of v1/content/test.txt: eb1a3227cdc3fedbaec2fe38bf6c044a
+The file contains: "testing\n"
+
+==============================================================================
+RECOMMENDED STEPS FOR FIXING THE OBJECT
+==============================================================================
+
+Step 1: Identify which digest representation is correct
+  - The lowercase version (eb1a3227cdc3fedbaec2fe38bf6c044a) is the standard
+    OCFL representation for MD5 hashes, as OCFL specifications typically
+    require lowercase hexadecimal representations.
+
+Step 2: Update the inventory.json file
+  - Remove the duplicate entry with the uppercase hash value
+  - Keep only the lowercase entry in the fixity section:
+
+    "fixity": {
+      "md5": {
+        "eb1a3227cdc3fedbaec2fe38bf6c044a": [
+          "v1/content/test.txt"
+        ]
+      }
+    }
+
+Step 3: Recalculate the inventory checksum
+  - After modifying inventory.json, the inventory.json.sha512 file must be
+    updated to reflect the new checksum of the modified inventory.json
+  - The SHA512 hash should be calculated over the entire inventory.json file
+
+Step 4: Do the same for v1/inventory.json
+  - The v1/inventory.json file contains identical content and has the same issue
+  - Apply the same fix: remove the duplicate uppercase MD5 entry
+  - Recalculate v1/inventory.json.sha512
+
+Step 5: Validate the object again
+  - Run: ocfl validate --object=/workspace/objects/obj-043
+  - Verify that no errors are reported
+
+==============================================================================
+DETAILED FIX INSTRUCTIONS
+==============================================================================
+
+The inventory.json files need to be edited to remove the duplicate. The
+correct fixity block should contain only:
+
+    "fixity": {
+      "md5": {
+        "eb1a3227cdc3fedbaec2fe38bf6c044a": [
+          "v1/content/test.txt"
+        ]
+      }
+    }
+
+Not the current state with both lowercase and uppercase versions.
+
+This is a straightforward cleanup task that requires:
+1. Removing the conflicting digest entry from the fixity section
+2. Recalculating both inventory checksums
+3. Ensuring consistency across root and version-level inventories
