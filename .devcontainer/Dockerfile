@@ -55,7 +55,7 @@ RUN ARCH=$(dpkg --print-architecture) && \
   rm "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb"
 
 # Install ocfl-tools
-ARG OCFL_TOOLS_VERSION=0.3.2
+ARG OCFL_TOOLS_VERSION=0.3.3
 COPY install-ocfl-tools.sh /tmp/
 RUN chmod +x /tmp/install-ocfl-tools.sh && \
   /tmp/install-ocfl-tools.sh ${OCFL_TOOLS_VERSION} && \

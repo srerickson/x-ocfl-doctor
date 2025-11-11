@@ -4,7 +4,7 @@ set -e
 # OCFL Tools installation script
 # Detects system architecture and installs the appropriate version
 
-VERSION="${1:-0.3.2}"
+VERSION="${1:-0.3.3}"
 REPO="srerickson/ocfl-tools"
 INSTALL_DIR="/usr/local/bin"
 
