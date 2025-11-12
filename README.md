@@ -17,10 +17,11 @@ $ claude --dangerously-skip-permissions @prompt.md
 
 Overview:
 
-- `prompt.md` is the initial prompt that launches subagents to check each object
+- `prompt.md` is the initial prompt that launches subagents to check objects
 - `.claude/skills/ocfl-debug.md` is an OCFL debugging
   [skill](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview)
   used by subagents.
-- results are written to `logs/`
+- repaired objects are saved to `repaired/`
+- logs of steps taken to repair each object are save to `logs/`
 - `object-key.age` has mappings of objects to fixture names. It's encrypted to
   prevent the agent from cheating.

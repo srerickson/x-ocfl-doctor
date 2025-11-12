@@ -1,15 +1,14 @@
 The `objects` folder includes OCFL objects as sub-directories. For each object,
-launch a subagent to:
+launch a subagent to check the object and repair it, if necessary. Each subagent
+should:
 
-- validate the object
-- if the object is invalid, use the validation output and your review of the
-  object itself to generate a report. The report should include recommended
-  steps to address the validation errors.
-- Save the reports in the logs folder with the name of the object (e.g.,
-  obj-004.txt).
-- Do not generate reports for valid objects.
+- validate the object.
+- If the object is valid, skip it.
+- if the object is invalid, try to repair the object by first creating a copy of
+  the object in the `repaired` folder. Never modify the original object in the
+  `objects` folder.
+- Do your best address validation errors without deleting existing content.
+- Save a log of your work in the `logs` folder in a `.txt` with the same name
+  as the object folder (e.g., `logs/obj-021.txt`).
 
 Once all agents have completed their work, save a summary to logs/summary.txt
-
-You should not need to generate any code. Each subagent should write the report
-itself.
