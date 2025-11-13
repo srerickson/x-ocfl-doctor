@@ -1,0 +1,97 @@
+OCFL Object Validation and Repair Report
+========================================
+
+Object Name: obj-005
+Object ID: urn:example-3
+
+INITIAL VALIDATION RESULT: INVALID
+
+Error Messages from Initial Validation:
+- WARN root inventory.json: 'digestAlgorithm' is "sha256" (W004)
+- ERRO v1/inventory.json has different logical state in its v1 version block than the root inventory.json (E066)
+- WARN v2/inventory.json: 'digestAlgorithm' is "sha256" (W004)
+- ERRO object has errors
+
+Root Cause Analysis:
+====================
+
+1. Inconsistent Digest Algorithm in v1/inventory.json:
+   - Root inventory.json: digestAlgorithm = "sha256"
+   - v1/inventory.json: digestAlgorithm = "sha512" (MISMATCH)
+   - Root and v2 inventories should match; v1 should be consistent with root
+
+2. Inconsistent SHA Hashes in v1/inventory.json:
+   - Root inventory uses SHA256 hashes for the manifest
+   - v1/inventory.json used different SHA512 hashes
+   - These hashes don't match the actual file contents
+
+3. Logical State Mismatch in v1 Version Block:
+   - Root and v2 inventories had hash mapping "2c8b08da..." -> "changed" (INVALID)
+   - v1/inventory.json had correct mapping "2c8b08da..." -> "file-1.txt"
+   - Should be "file-1.txt" not "changed"
+
+4. Checksum File Inconsistency:
+   - v1/inventory.json.sha512 existed (wrong algorithm)
+   - Should be inventory.json.sha256
+
+REPAIR ACTIONS TAKEN:
+====================
+
+1. Created backup copy in /workspace/repaired/obj-005
+
+2. Fixed v1/inventory.json:
+   - Changed digestAlgorithm from "sha512" to "sha256"
+   - Updated manifest hashes to match SHA256 values:
+     * "f6936912184481f5edd4c304ce27c5a1a827804fc7f329f43d273b8621870776" -> v1/content/file-3.txt
+     * "2c8b08da5ce60398e1f19af0e5dccc744df274b826abe585eaba68c525434806" -> v1/content/file-1.txt
+     * "27dd8ed44a83ff94d557f9fd0412ed5a8cbca69ea04922d88c01184a07300a5a" -> v1/content/file-2.txt
+   - Fixed v1 state mappings:
+     * "2c8b08da..." -> "file-1.txt" (was unmapped/invalid)
+     * "f6936912..." -> "file-2.txt" (corrected mapping)
+     * "27dd8ed4..." -> "file-3.txt"
+
+3. Updated v1 checksum file:
+   - Removed: v1/inventory.json.sha512
+   - Created: v1/inventory.json.sha256
+   - New checksum: b79a5b1e45c3c25e3946ccfe11f4a265dd8631755827940f219da4f39827dee8
+
+4. Fixed root inventory.json:
+   - Corrected v1 state mapping: "2c8b08da..." -> "file-1.txt" (was "changed")
+   - Updated root inventory checksum
+
+5. Updated root inventory.json.sha256:
+   - New checksum: 588601fba616de7503f467cb28528b3825e04c5c1d33c539d8346987a2fd9ea6
+
+6. Fixed v2/inventory.json:
+   - Corrected v1 state mapping: "2c8b08da..." -> "file-1.txt" (was "changed")
+   - Updated v2 inventory checksum
+
+7. Updated v2/inventory.json.sha256:
+   - New checksum: 588601fba616de7503f467cb28528b3825e04c5c1d33c539d8346987a2fd9ea6
+
+FINAL VALIDATION RESULT: VALID
+
+Post-Repair Validation Output:
+WARN root inventory.json: 'digestAlgorithm' is "sha256" (W004 - expected, spec prefers sha512)
+WARN v1/inventory.json: 'digestAlgorithm' is "sha256" (W004 - expected, spec prefers sha512)
+WARN v2/inventory.json: 'digestAlgorithm' is "sha256" (W004 - expected, spec prefers sha512)
+[No errors - object is VALID]
+
+Data Integrity:
+===============
+All content files are preserved:
+- v1/content/file-1.txt
+- v1/content/file-2.txt
+- v1/content/file-3.txt
+
+No data loss occurred during repair.
+
+Repair Summary:
+===============
+Status: SUCCESSFUL
+Initial Status: INVALID
+Final Status: VALID
+Errors Fixed: 2 critical (E066 - state mismatch, digest inconsistency)
+Content Preserved: YES
+All Files Maintained: YES
+

@@ -1,0 +1,27 @@
+{
+  "id": "urn:example-2",
+  "type": "https://ocfl.io/1.1/spec/#inventory",
+  "digestAlgorithm": "sha512",
+  "head": "v1",
+  "contentDirectory": "content",
+  "manifest": {
+    "1277a792c8196a2504007a40f31ed93bf826e71f16273d8503f7d3e46503d00b8d8cda0a59d6a33b9c1aebc84ea6a79f7062ee080f4a9587055a7b6fb92f5fa8": [
+      "v1/content/test.txt"
+    ]
+  },
+  "versions": {
+    "v1": {
+      "created": "2021-03-31T08:22:37.241208990-05:00",
+      "state": {
+        "1277a792c8196a2504007a40f31ed93bf826e71f16273d8503f7d3e46503d00b8d8cda0a59d6a33b9c1aebc84ea6a79f7062ee080f4a9587055a7b6fb92f5fa8": [
+          "test.txt"
+        ]
+      },
+      "message": "Simple example",
+      "user": {
+        "name": "tester",
+        "address": "mailto:tests@example.com"
+      }
+    }
+  }
+}

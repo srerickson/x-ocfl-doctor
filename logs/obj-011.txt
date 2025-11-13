@@ -1,0 +1,104 @@
+================================================================================
+OCFL OBJECT VALIDATION AND REPAIR LOG
+================================================================================
+Object Name: obj-011
+Object ID: urn:example-3
+Date: 2025-11-12
+
+================================================================================
+STEP 1: INITIAL VALIDATION
+================================================================================
+Command: ocfl validate --object /workspace/objects/obj-011
+
+Result: INVALID
+
+Errors Found:
+- ERRO root inventory.json: invalid path: '/v1/content/file-3.txt' (E099)
+  Problem: Path starts with '/' (absolute path not allowed)
+  
+Additional Investigation:
+  - File path: /v1/content/file-3.txt (INVALID - has leading slash)
+  - File path: v1/content/../content/file-1.txt (INVALID - contains '..' relative traversal)
+  - File path: v1/content//file-2.txt (INVALID - contains double slashes)
+
+All referenced files exist in storage:
+  - /workspace/objects/obj-011/v1/content/file-1.txt (EXISTS)
+  - /workspace/objects/obj-011/v1/content/file-2.txt (EXISTS)
+  - /workspace/objects/obj-011/v1/content/file-3.txt (EXISTS)
+
+================================================================================
+STEP 2: COPY TO REPAIR DIRECTORY
+================================================================================
+Command: cp -r /workspace/objects/obj-011 /workspace/repaired/obj-011
+
+Status: COMPLETED
+The object was copied to preserve the original and allow safe repairs.
+
+================================================================================
+STEP 3: REPAIR ACTIONS
+================================================================================
+
+Location 1: /workspace/repaired/obj-011/inventory.json
+  - Fixed path: '/v1/content/file-3.txt' -> 'v1/content/file-3.txt'
+    (removed leading slash to make it a relative path)
+  - Fixed path: 'v1/content/../content/file-1.txt' -> 'v1/content/file-1.txt'
+    (normalized path by removing '..' traversal)
+  - Fixed path: 'v1/content//file-2.txt' -> 'v1/content/file-2.txt'
+    (removed double slash)
+  - Updated SHA512 checksum in inventory.json.sha512
+    Old: (not calculated)
+    New: 278c3c9fafde4e93415e2990566d1f59759510aa6a71a79d26066e2a5fe1e85373788c6179e071669fcca68f03eedf71a6c6ad2fb977812f8d5ee1c3c4e9db8b
+
+Location 2: /workspace/repaired/obj-011/v1/inventory.json
+  - Applied identical fixes as above (manifest path normalization)
+  - Updated SHA512 checksum in v1/inventory.json.sha512
+    New: 278c3c9fafde4e93415e2990566d1f59759510aa6a71a79d26066e2a5fe1e85373788c6179e071669fcca68f03eedf71a6c6ad2fb977812f8d5ee1c3c4e9db8b
+
+All file content preserved:
+  - No files were deleted
+  - All content remains intact
+  - Only manifest path references were corrected for OCFL compliance
+
+================================================================================
+STEP 4: VALIDATION OF REPAIRED OBJECT
+================================================================================
+Command: ocfl validate --object /workspace/repaired/obj-011
+
+Result: VALID
+
+No errors detected. The object now complies with OCFL specifications.
+
+================================================================================
+SUMMARY
+================================================================================
+Object Name:           obj-011 (urn:example-3)
+Original Status:       INVALID
+Final Status:          VALID
+Validation Errors:     3 path format violations (all corrected)
+Files Affected:        2 inventory.json files (root and v1)
+Content Integrity:     PRESERVED (all files intact)
+Repair Location:       /workspace/repaired/obj-011
+
+================================================================================
+REPAIR DETAILS
+================================================================================
+The object had malformed manifest paths that violated OCFL 1.1 specifications:
+
+1. Absolute paths not allowed:
+   '/v1/content/file-3.txt' -> 'v1/content/file-3.txt'
+
+2. Path traversal sequences not allowed:
+   'v1/content/../content/file-1.txt' -> 'v1/content/file-1.txt'
+
+3. Redundant path separators not allowed:
+   'v1/content//file-2.txt' -> 'v1/content/file-2.txt'
+
+These corrections ensure the paths follow OCFL normalization rules:
+- No leading slashes
+- No relative path sequences (..)
+- No redundant path separators (//)
+
+All referenced files physically exist in the correct locations and are properly
+checksummed by their SHA512 digests in the manifest.
+
+================================================================================

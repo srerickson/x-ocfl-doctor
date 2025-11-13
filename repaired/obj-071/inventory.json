@@ -1,0 +1,32 @@
+{
+  "digestAlgorithm": "sha512",
+  "head": "v1",
+  "id": "ark:123/abc",
+  "manifest": {
+    "43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f": [
+      "v1/content/a_file.txt"
+    ],
+    "c59627932be9e831e2f693768f462c24f0df9bccb3033a9850d05425fc16b504354556618fa9f5bcf381b2e2b98509d32c980ff6468dae8b51045837e41b879b": [
+      "v1/content/extra_dir_preserved/something.txt"
+    ]
+  },
+  "type": "https://ocfl.io/1.1/spec/#inventory",
+  "versions": {
+    "v1": {
+      "created": "2019-01-01T02:03:04Z",
+      "state": {
+        "43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f": [
+          "a_file.txt"
+        ],
+        "c59627932be9e831e2f693768f462c24f0df9bccb3033a9850d05425fc16b504354556618fa9f5bcf381b2e2b98509d32c980ff6468dae8b51045837e41b879b": [
+          "extra_dir_preserved/something.txt"
+        ]
+      },
+      "message": "Intial import",
+      "user": {
+        "name": "A person",
+        "address": "https://orcid.org/0000-0000-0000-0000"
+      }
+    }
+  }
+}

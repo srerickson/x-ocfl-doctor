@@ -1,0 +1,67 @@
+OCFL OBJECT VALIDATION AND REPAIR LOG
+=====================================
+Object: obj-018
+Date: 2025-11-12
+Timestamp: 15:53 UTC
+
+INITIAL VALIDATION
+==================
+Command: ocfl validate --object /workspace/objects/obj-018
+Status: INVALID
+Errors Found:
+  1. OCFL Error E096 - digest conflict in inventory.json
+     - Two digest entries found in manifest with same content but different case:
+       * 24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28 (lowercase)
+       * 24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28 (uppercase)
+  2. OCFL Error E107 - digest in manifest not used in version state
+     - The uppercase digest variant is not referenced in any version state
+
+ROOT CAUSE
+==========
+The inventory.json files contain a duplicate digest entry with mixed case formatting.
+The version state only references the lowercase variant, making the uppercase entry
+orphaned and creating a digest conflict violation.
+
+REPAIR ACTIONS
+==============
+1. Created copy: /workspace/objects/obj-018 -> /workspace/repaired/obj-018
+
+2. Fixed /workspace/repaired/obj-018/inventory.json
+   - Removed uppercase digest entry: 24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28
+   - Kept lowercase digest entry: 24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28
+   - Updated SHA512 checksum from: c92213703e545f33dfb86dc8b76a8797312605f4eb7fe737652dfd0e34af736b629cd9dc3b5d0c34ade129b83019c32d5963ceb995c56a4b6a61221e0adbdeb7
+   - Updated SHA512 checksum to:   032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+
+3. Fixed /workspace/repaired/obj-018/inventory.json.sha512
+   - Updated checksum to match the corrected inventory.json file
+
+4. Fixed /workspace/repaired/obj-018/v1/inventory.json
+   - Removed uppercase digest entry: 24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28
+   - Kept lowercase digest entry: 24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28
+   - Updated SHA512 checksum from: c92213703e545f33dfb86dc8b76a8797312605f4eb7fe737652dfd0e34af736b629cd9dc3b5d0c34ade129b83019c32d5963ceb995c56a4b6a61221e0adbdeb7
+   - Updated SHA512 checksum to:   032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+
+5. Fixed /workspace/repaired/obj-018/v1/inventory.json.sha512
+   - Updated checksum to match the corrected v1/inventory.json file
+
+CONTENT PRESERVATION
+====================
+All existing content was preserved during repair:
+- v1/content/test.txt: Present and intact (8 bytes)
+- No files were deleted
+- Only duplicate digest entries were removed
+
+FINAL VALIDATION
+================
+Command: ocfl validate --object /workspace/repaired/obj-018
+Status: VALID
+Output: (No errors)
+
+SUMMARY
+=======
+Object Name: obj-018
+Initial Status: INVALID (Digest conflict - E096, E107)
+Final Status: VALID
+Repair Type: Digest deduplication
+Files Modified: 4 (root inventory.json, root inventory.json.sha512, v1/inventory.json, v1/inventory.json.sha512)
+Content Preserved: Yes (all original files intact)

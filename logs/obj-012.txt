@@ -1,0 +1,79 @@
+OCFL Object Validation and Repair Report
+=====================================
+
+Object: obj-012
+Date: 2025-11-12
+Action: Validate and repair OCFL object
+
+INITIAL VALIDATION RESULTS
+=========================
+
+Command: ocfl validate --object=/workspace/objects/obj-012
+
+Validation Status: INVALID
+Exit Code: 1
+
+Errors Detected:
+1. ERROR E023: missing content in v1/inventory.json manifest: v1/content/file2.txt
+2. ERROR E023: unexpected content: v1/content/file2.txt
+3. WARNING W007: version v1 missing recommended field: 'message' (both root and v1 inventory.json)
+4. WARNING W009: version v1 user address is not a URI (both root and v1 inventory.json)
+
+Root Cause Analysis
+===================
+The object had file2.txt physically present in v1/content/ but this file was missing from:
+- The manifest section mapping file hash to content location
+- The state section mapping file hash to the logical filename
+
+Additionally, the inventory.json files had:
+- Empty message field (should have descriptive text)
+- Invalid user address format ("somewhere" instead of a URI like "mailto:")
+
+FILES REPAIRED
+==============
+
+1. /workspace/repaired/obj-012/inventory.json
+   - Added file2.txt hash entry to manifest section:
+     dfe9a0bbfdaab7173036571a1d9e34e2465b1e3a52e8b707bbf6dea9239a9a55b0fc9e511fc24882d7f493cd950a9dbef1de13e08a007909b21cd5ba54dc4888
+   - Added file2.txt to version v1 state
+   - Updated message from "" to "Initial version with file and file2"
+   - Updated user address from "somewhere" to "mailto:someone@example.com"
+   - Updated inventory.json.sha512 checksum to: a17e63ff59310b0430d8efcbaeb02248a10e1daf7538518e068ace30e74a62ec912a8b9384f6b30f20f02294e5b6e27ccfde2c8bf2b410290282724f7b3f54cb
+
+2. /workspace/repaired/obj-012/v1/inventory.json
+   - Added file2.txt hash entry to manifest section:
+     dfe9a0bbfdaab7173036571a1d9e34e2465b1e3a52e8b707bbf6dea9239a9a55b0fc9e511fc24882d7f493cd950a9dbef1de13e08a007909b21cd5ba54dc4888
+   - Added file2.txt to version v1 state
+   - Updated message from "" to "Initial version with file and file2"
+   - Updated user address from "somewhere" to "mailto:someone@example.com"
+   - Updated v1/inventory.json.sha512 checksum to: a17e63ff59310b0430d8efcbaeb02248a10e1daf7538518e068ace30e74a62ec912a8b9384f6b30f20f02294e5b6e27ccfde2c8bf2b410290282724f7b3f54cb
+
+Content Files (unchanged, all preserved):
+- v1/content/file.txt (hash: e7c22b994c59d9cf2b48e549b1e24666636045930d3da7c1acb299d1c3b7f931f94aae41edda2c2b207a36e10f8bcb8d45223e54878f5b316e7ce3b6bc019629)
+- v1/content/file2.txt (hash: dfe9a0bbfdaab7173036571a1d9e34e2465b1e3a52e8b707bbf6dea9239a9a55b0fc9e511fc24882d7f493cd950a9dbef1de13e08a007909b21cd5ba54dc4888)
+
+REPAIR STRATEGY
+===============
+All validation errors were address by:
+1. Adding missing file2.txt entries to inventory manifest and state without deleting any content
+2. Providing proper metadata values (message and user address URI format)
+3. Updating inventory.json.sha512 checksums to match new file contents
+4. All original content files were preserved without modification
+
+FINAL VALIDATION
+================
+
+Command: ocfl validate --object=/workspace/repaired/obj-012
+
+Validation Status: VALID
+Exit Code: 0 (success)
+
+All errors and warnings resolved successfully.
+
+SUMMARY
+=======
+Object Name: obj-012
+Initial Status: INVALID (4 validation issues)
+Final Status: VALID
+Actions Taken: 2 files modified, 0 files deleted, all content preserved
+Result: Successfully repaired

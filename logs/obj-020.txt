@@ -1,0 +1,91 @@
+================================================================================
+OCFL OBJECT VALIDATION AND REPAIR LOG
+Object ID: obj-020
+Date: 2025-11-12
+================================================================================
+
+STEP 1: INITIAL VALIDATION
+========================
+Command: ocfl validate --object /workspace/objects/obj-020
+Result: INVALID
+
+Validation Errors Detected:
+- OCFL Code: E101 (Path Conflict)
+- Description: "path conflict for: 'v1/content/test.txt'"
+- Location: root inventory.json and v1/inventory.json
+
+Issue Details:
+The manifest contained duplicate path entries for the same digest:
+  Digest: 24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28
+  
+  Original Manifest Paths:
+    - v1/content/test.txt (DUPLICATE)
+    - v1/content/test-copy.txt
+    - v1/content/test.txt (DUPLICATE)
+
+Per OCFL specification, each digest key must map to a unique set of logical paths.
+The duplicate entry "v1/content/test.txt" violates this constraint.
+
+STEP 2: OBJECT COPY
+===================
+Action: Created backup copy of object
+Source: /workspace/objects/obj-020
+Destination: /workspace/repaired/obj-020
+Status: Complete
+Command: cp -r /workspace/objects/obj-020 /workspace/repaired/obj-020
+
+STEP 3: REPAIR PROCESS
+=====================
+
+Repair Action 1: Fix Root Inventory Manifest
+- File: /workspace/repaired/obj-020/inventory.json
+- Change: Removed duplicate "v1/content/test.txt" entry from manifest
+- Original: ["v1/content/test.txt", "v1/content/test-copy.txt", "v1/content/test.txt"]
+- Fixed:    ["v1/content/test.txt", "v1/content/test-copy.txt"]
+- Rationale: Duplicate paths in a manifest are not allowed per OCFL spec
+
+Repair Action 2: Update Root Inventory Digest
+- File: /workspace/repaired/obj-020/inventory.json.sha512
+- Action: Recalculated SHA512 digest of modified inventory.json
+- New Digest: a92ff249d036d7b181ccc7c8bf81d2e2a263f5dbd1f568ddf12affc792ba38d0a74104ceeef29887b2ccb57a9e5b4da7a6fb32bd3212e5ba753a7ef940fa88fb
+- Reason: Digest must match content after modification
+
+Repair Action 3: Fix V1 Inventory Manifest
+- File: /workspace/repaired/obj-020/v1/inventory.json
+- Change: Removed duplicate "v1/content/test.txt" entry from manifest
+- Original: ["v1/content/test.txt", "v1/content/test-copy.txt", "v1/content/test.txt"]
+- Fixed:    ["v1/content/test.txt", "v1/content/test-copy.txt"]
+- Rationale: Version-specific inventory must also have unique paths
+
+Repair Action 4: Update V1 Inventory Digest
+- File: /workspace/repaired/obj-020/v1/inventory.json.sha512
+- Action: Recalculated SHA512 digest of modified v1/inventory.json
+- Reason: Digest must match content after modification
+
+Content Preservation:
+- No files were deleted during repair
+- Both v1/content/test.txt and v1/content/test-copy.txt remain intact
+- All object versions and metadata preserved
+
+STEP 4: VALIDATION OF REPAIRED OBJECT
+=====================================
+Command: ocfl validate --object /workspace/repaired/obj-020
+Result: VALID
+
+No errors detected. Object passes OCFL validation successfully.
+
+SUMMARY
+=======
+Object Name: obj-020
+Original Status: INVALID (path conflict in manifest)
+Final Status: VALID
+
+Root Cause: Duplicate path entry in manifest for same digest
+Fix Applied: Removed duplicate entries while preserving all files
+Files Modified: 4 (2 inventory.json files + 2 inventory.json.sha512 files)
+Files Deleted: 0
+Validation: Successful
+
+The object has been successfully repaired and is now compliant with OCFL 1.1 specification.
+All content has been preserved without deletion.
+================================================================================

@@ -1,0 +1,80 @@
+OCFL Object Validation and Repair Log
+======================================
+Object Name: obj-006
+Date: 2025-11-12
+
+INITIAL VALIDATION
+==================
+Command: ocfl validate --object=/workspace/objects/obj-006
+Result: INVALID
+
+Validation Errors Detected:
+1. OCFL Code E049: Timestamp parsing error
+   - File: inventory.json (root)
+   - Issue: "created" field missing timezone indicator
+   - Value: "2019-01-01T02:03:04"
+   - Expected format: RFC3339 with timezone (e.g., "2019-01-01T02:03:04Z")
+
+2. OCFL Code E048: Missing required field
+   - File: inventory.json (root)
+   - Issue: 'created' field validation failed due to parsing error
+
+REPAIR PROCESS
+==============
+
+Step 1: Create Working Copy
+Command: cp -r /workspace/objects/obj-006 /workspace/repaired/obj-006
+Status: Success
+Reason: Created backup copy to preserve original while repairing
+
+Step 2: Identify Inventory Files
+Found two inventory.json files requiring repair:
+- /workspace/repaired/obj-006/inventory.json (root)
+- /workspace/repaired/obj-006/v1/inventory.json (version)
+
+Step 3: Fix Timestamp Format
+Fixed both inventory.json files:
+- Changed "created": "2019-01-01T02:03:04"
+- To: "created": "2019-01-01T02:03:04Z"
+- This adds the required UTC timezone indicator per RFC3339
+
+Files Modified:
+1. /workspace/repaired/obj-006/inventory.json
+2. /workspace/repaired/obj-006/v1/inventory.json
+
+Step 4: Update Checksums
+Recalculated SHA512 checksums for both inventory files:
+- Root inventory.json.sha512: 29afadbb52e519f2f5aed39acc74ff531ff4a510e1cdf08404755d1a28769b3754b5f7ba1ac42b968b38dc5ab480ca68e596e1f98a6363b447809c636cf8d171
+- v1/inventory.json.sha512: 29afadbb52e519f2f5aed39acc74ff531ff4a510e1cdf08404755d1a28769b3754b5f7ba1ac42b968b38dc5ab480ca68e596e1f98a6363b447809c636cf8d171
+
+Commands:
+- cd /workspace/repaired/obj-006 && sha512sum inventory.json > inventory.json.sha512
+- cd /workspace/repaired/obj-006/v1 && sha512sum inventory.json > inventory.json.sha512
+
+FINAL VALIDATION
+================
+Command: ocfl validate --object=/workspace/repaired/obj-006
+Result: VALID
+No errors detected - object structure is now compliant with OCFL 1.1 specification
+
+SUMMARY
+=======
+Object Name: obj-006
+Initial Status: INVALID
+Final Status: VALID
+
+Actions Taken:
+1. Created copy in /workspace/repaired/obj-006
+2. Fixed timestamp format in root inventory.json (added 'Z' timezone)
+3. Fixed timestamp format in v1/inventory.json (added 'Z' timezone)
+4. Regenerated root inventory.json.sha512
+5. Regenerated v1/inventory.json.sha512
+
+Content Preserved:
+- All original files intact (v1/content/a_file.txt)
+- All metadata preserved
+- Manifest and state information unchanged
+- Only timestamps and checksums corrected
+
+Validation Status: PASS
+The repaired object is now compliant with OCFL 1.1 specification.

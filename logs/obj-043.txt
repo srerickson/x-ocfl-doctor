@@ -1,0 +1,159 @@
+================================================================================
+OCFL Object Validation and Repair Log - obj-043
+================================================================================
+
+Object Name: obj-043
+Validation Date: 2025-11-12
+
+================================================================================
+STEP 1: INITIAL VALIDATION
+================================================================================
+
+Command: ocfl validate --object /workspace/objects/obj-043
+
+Initial Validation Result: INVALID
+
+Error Details:
+  - Error Code: E097 (digest conflict)
+  - Issue: Root inventory.json contains digest conflict for 'EB1A3227CDC3FEDBAEC2FE38BF6C044A'
+  - Error Message: ERRO root inventory.json: digest conflict for: 'EB1A3227CDC3FEDBAEC2FE38BF6C044A' object_path=/workspace/objects/obj-043 ocfl_code=E097
+
+Root Cause Analysis:
+  The fixity section in the inventory.json files contains duplicate MD5 digest 
+  entries for the same file (v1/content/test.txt) with different case sensitivity:
+    - "eb1a3227cdc3fedbaec2fe38bf6c044a" (lowercase)
+    - "EB1A3227CDC3FEDBAEC2FE38BF6C044A" (uppercase)
+  
+  OCFL specification requires consistent digest representations. These duplicate 
+  entries with different cases represent the same digest value and cause validation 
+  conflicts.
+
+================================================================================
+STEP 2: OBJECT PREPARATION
+================================================================================
+
+Action: Created backup copy
+  Source: /workspace/objects/obj-043
+  Destination: /workspace/repaired/obj-043
+  Command: cp -r /workspace/objects/obj-043 /workspace/repaired/obj-043
+  Result: SUCCESS
+
+File MD5 Verification:
+  File: /workspace/objects/obj-043/v1/content/test.txt
+  Calculated MD5: eb1a3227cdc3fedbaec2fe38bf6c044a (lowercase)
+  Correct representation: LOWERCASE (as per actual file hash calculation)
+
+================================================================================
+STEP 3: REPAIR ACTIONS
+================================================================================
+
+Issue Identified: Duplicate MD5 digests with case variation in fixity section
+
+Files Modified:
+  1. /workspace/repaired/obj-043/inventory.json
+  2. /workspace/repaired/obj-043/v1/inventory.json
+  3. /workspace/repaired/obj-043/inventory.json.sha512
+  4. /workspace/repaired/obj-043/v1/inventory.json.sha512
+
+Repair Details:
+
+A. Root inventory.json (/workspace/repaired/obj-043/inventory.json)
+   
+   Original fixity section:
+   {
+     "md5": {
+       "eb1a3227cdc3fedbaec2fe38bf6c044a": ["v1/content/test.txt"],
+       "EB1A3227CDC3FEDBAEC2FE38BF6C044A": ["v1/content/test.txt"]
+     }
+   }
+   
+   Repaired fixity section:
+   {
+     "md5": {
+       "eb1a3227cdc3fedbaec2fe38bf6c044a": ["v1/content/test.txt"]
+     }
+   }
+   
+   Action: Removed duplicate uppercase MD5 entry
+   Rationale: Kept lowercase representation as it matches the actual file hash
+
+B. Root inventory.json.sha512 (/workspace/repaired/obj-043/inventory.json.sha512)
+   
+   Old checksum: a11f726057b7883dfccf5a611f94869402e9d248a5d2280923f88202bad31936fa24b45c0250b206c55fc85b4546b3e3f58abd53ef48e22f4ccb64634362c0b5
+   New checksum: 5504519a6e1f524cf2fc3540df7a9dd12a31074dece44e03ca95750ed5c58fd95be93d9a113f8ed37feb7cadddba20d25c7a5ad7ed7679d17ac56c7ac1dce598
+   
+   Action: Updated SHA512 checksum to match modified inventory.json
+
+C. Version inventory.json (/workspace/repaired/obj-043/v1/inventory.json)
+   
+   Original fixity section:
+   {
+     "md5": {
+       "eb1a3227cdc3fedbaec2fe38bf6c044a": ["v1/content/test.txt"],
+       "EB1A3227CDC3FEDBAEC2FE38BF6C044A": ["v1/content/test.txt"]
+     }
+   }
+   
+   Repaired fixity section:
+   {
+     "md5": {
+       "eb1a3227cdc3fedbaec2fe38bf6c044a": ["v1/content/test.txt"]
+     }
+   }
+   
+   Action: Removed duplicate uppercase MD5 entry
+   Rationale: Consistent with root inventory repair
+
+D. Version inventory.json.sha512 (/workspace/repaired/obj-043/v1/inventory.json.sha512)
+   
+   Old checksum: a11f726057b7883dfccf5a611f94869402e9d248a5d2280923f88202bad31936fa24b45c0250b206c55fc85b4546b3e3f58abd53ef48e22f4ccb64634362c0b5
+   New checksum: 5504519a6e1f524cf2fc3540df7a9dd12a31074dece44e03ca95750ed5c58fd95be93d9a113f8ed37feb7cadddba20d25c7a5ad7ed7679d17ac56c7ac1dce598
+   
+   Action: Updated SHA512 checksum to match modified v1/inventory.json
+
+Content Preservation:
+  All file content was preserved during repair
+  No files were deleted or modified
+  Object structure remains unchanged
+
+================================================================================
+STEP 4: REPAIRED OBJECT VALIDATION
+================================================================================
+
+Command: ocfl validate --object /workspace/repaired/obj-043
+
+Validation Result: VALID
+
+Output: (no errors)
+
+Status: VALIDATION SUCCESSFUL - Object is now compliant with OCFL specification
+
+================================================================================
+SUMMARY
+================================================================================
+
+Object Name: obj-043
+Original Status: INVALID
+Final Status: VALID
+
+Validation Errors Fixed: 1
+  - E097 digest conflict in fixity section
+
+Files Repaired: 4
+  - inventory.json (removed duplicate case-variant digest)
+  - inventory.json.sha512 (updated checksum)
+  - v1/inventory.json (removed duplicate case-variant digest)
+  - v1/inventory.json.sha512 (updated checksum)
+
+Content Changes: None
+  - All file content preserved
+  - Only metadata corrections made
+
+Repair Location: /workspace/repaired/obj-043
+
+Recommendations:
+  1. Object is now OCFL 1.1 compliant
+  2. No action needed on the original object if this repair is acceptable
+  3. Future validation should pass without errors
+
+================================================================================

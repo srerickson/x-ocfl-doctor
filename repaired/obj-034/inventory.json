@@ -1,0 +1,19 @@
+{
+  "digestAlgorithm": "sha512",
+  "head": "v1",
+  "id": "http://example.org/E041_no_manifest",
+  "type": "https://ocfl.io/1.1/spec/#inventory",
+  "manifest": {},
+  "versions": {
+    "v1": {
+      "created": "2019-01-01T02:03:04Z",
+      "message": "Initial version",
+      "user": {
+        "name": "admin",
+        "address": "mailto:admin@example.org"
+      },
+      "state": {
+      }
+    }
+  }
+}

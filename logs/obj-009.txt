@@ -1,0 +1,68 @@
+OCFL Object Validation and Repair Report
+=======================================
+Object Name: obj-009
+Date: 2025-11-12
+
+INITIAL VALIDATION
+------------------
+Validation Result: INVALID
+
+Validation Errors Found:
+1. E049: root inventory.json: version 'v1': created: parsing time "2019-01-01T01:02Z" as "2006-01-02T15:04:05Z07:00": cannot parse "Z" as ":"
+   - Issue: Malformed ISO 8601 timestamp in root inventory.json
+   - Location: inventory.json > versions.v1.created
+   - Value: "2019-01-01T01:02Z"
+   - Expected Format: "2019-01-01T01:02:00Z" (with seconds included)
+
+2. E048: root inventory.json: version v1 missing required field: 'created'
+   - Secondary error due to failed parsing of the created field
+
+REPAIR ACTIONS
+--------------
+
+1. Created repair copy
+   - Source: /workspace/objects/obj-009
+   - Destination: /workspace/repaired/obj-009
+   - Action: Full directory recursive copy
+
+2. Fixed root inventory.json timestamp
+   - File: /workspace/repaired/obj-009/inventory.json
+   - Changed: "created": "2019-01-01T01:02Z"
+   - To: "created": "2019-01-01T01:02:00Z"
+   - Reason: ISO 8601 format requires seconds component
+
+3. Updated root inventory.json.sha512 checksum
+   - File: /workspace/repaired/obj-009/inventory.json.sha512
+   - Old checksum: 188c5d4cafaff3504c9355e3e34b9e9bde4c986a6e5ee63821ab225dac708d0cbd85a3cc529ed6d0672332db574123cdf22e620b5a6f697e15041c9854b1b21d
+   - New checksum: 24e9dbb96d8ce5e0dfc536d519564366b24a16ff1aae100bb5db7800fe2800146d7ace3d11195cc264e018a99b8c0f384f485f4c8cf805ea15a20533e0918bb5
+   - Reason: SHA512 of modified inventory.json changed
+
+4. Fixed v1/inventory.json timestamp
+   - File: /workspace/repaired/obj-009/v1/inventory.json
+   - Changed: "created": "2019-01-01T01:02Z"
+   - To: "created": "2019-01-01T01:02:00Z"
+   - Reason: Consistency with root inventory.json fix
+
+5. Updated v1/inventory.json.sha512 checksum
+   - File: /workspace/repaired/obj-009/v1/inventory.json.sha512
+   - Old checksum: 188c5d4cafaff3504c9355e3e34b9e9bde4c986a6e5ee63821ab225dac708d0cbd85a3cc529ed6d0672332db574123cdf22e620b5a6f697e15041c9854b1b21d
+   - New checksum: 24e9dbb96d8ce5e0dfc536d519564366b24a16ff1aae100bb5db7800fe2800146d7ace3d11195cc264e018a99b8c0f384f485f4c8cf805ea15a20533e0918bb5
+   - Reason: SHA512 of modified v1/inventory.json changed
+
+FINAL VALIDATION
+----------------
+Validation Result: VALID
+No errors detected.
+Object structure and checksums validated successfully.
+
+SUMMARY
+-------
+Object Name: obj-009
+Initial Status: INVALID
+Final Status: VALID
+Content Preserved: Yes (all original files and data preserved)
+Repair Location: /workspace/repaired/obj-009
+
+Root Cause: ISO 8601 timestamp format error (missing seconds component)
+Files Modified: 4 (2 inventory.json files + 2 sha512 files)
+All existing content maintained during repair process.

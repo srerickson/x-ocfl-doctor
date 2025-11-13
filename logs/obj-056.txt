@@ -1,0 +1,81 @@
+OCFL OBJECT REPAIR LOG
+======================
+Object ID: obj-056
+Date: 2025-11-12
+
+VALIDATION RESULTS
+==================
+
+INITIAL VALIDATION (objects/obj-056):
+Status: INVALID
+Error Code: E050
+Error Details: digest in v1 state not in manifest
+  - The v1 state contained a digest that was not present in the manifest
+  - Invalid digest: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  - Referenced file: not_in_manifest.oops
+
+ROOT CAUSE ANALYSIS
+===================
+The inventory.json in v1 contained an entry in the state block with a digest that had no corresponding entry in the manifest. This violates OCFL specification requirement that all digests in a state must exist in the manifest.
+
+The specific issue:
+  - Manifest contained: digest "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28"
+  - V1 state contained:
+    - Valid: "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28" -> test.txt
+    - INVALID: "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" -> not_in_manifest.oops (NOT in manifest)
+
+REPAIR ACTIONS
+==============
+
+1. Created copy of object
+   - Source: objects/obj-056
+   - Destination: repaired/obj-056
+   - Status: SUCCESS
+
+2. Fixed inventory.json (root level)
+   - Removed invalid digest entry from v1 state block
+   - Kept valid entry: digest 24f950... referencing test.txt
+   - Content preserved: All existing valid content retained
+   - Status: SUCCESS
+
+3. Fixed v1/inventory.json
+   - Removed invalid digest entry from v1 state block
+   - Kept valid entry: digest 24f950... referencing test.txt
+   - Content preserved: All existing valid content retained
+   - Status: SUCCESS
+
+4. Recalculated and updated checksums
+   - Recalculated SHA512 hash for modified inventory.json (root): 37fc81d866a2a3b0ff39190ea050fc0f404a2f9272f642089a450afe637597f6ae4eedf2ef2830eaf4ddc5583556eb7ec61f8efe08d8def2e8103e2a95e6efd1
+   - Updated inventory.json.sha512 (root)
+   - Updated v1/inventory.json.sha512 with correct format
+   - Status: SUCCESS
+
+FINAL VALIDATION (repaired/obj-056)
+===================================
+Status: VALID
+Error Count: 0
+Warning Count: 0
+Validation: PASSED
+
+CONTENT PRESERVATION VERIFICATION
+==================================
+- Root object declaration (0=ocfl_object_1.1): PRESERVED
+- Manifest entry: PRESERVED (digest 24f950...)
+- V1 content directory: PRESERVED (v1/content/test.txt exists)
+- V1 metadata (created, message, user): PRESERVED
+- All valid version information: PRESERVED
+
+REPAIR SUMMARY
+==============
+Object Name: obj-056
+Initial Status: INVALID (E050 - digest in state not in manifest)
+Final Status: VALID
+
+Actions Performed:
+  - Copied object to repaired/obj-056
+  - Removed invalid digest from state (ffffffff... entry)
+  - Kept all valid manifest and state entries
+  - Recalculated checksum for inventory.json
+  - Fixed v1/inventory.json.sha512 format
+
+Result: Object successfully repaired without data loss. All valid content preserved.

@@ -1,0 +1,67 @@
+OCFL Object Validation and Repair Log
+=====================================
+
+Object Name: obj-025
+Date: 2025-11-12
+
+VALIDATION RESULTS
+==================
+
+Initial Validation Status: INVALID
+
+Validation Errors Found:
+1. OCFL Code E107: digest in manifest not used in version state
+   - Issue: Manifest contained digest in lowercase format
+   - Affected digest: 24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28
+   - Root cause: inventory.json had lowercase digest in manifest, but uppercase in v1 state
+
+2. OCFL Code E050: digest in v1 state not in manifest
+   - Issue: The v1 state contained uppercase digest format
+   - Affected digest: 24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28
+   - Root cause: Inconsistent digest case between manifest and version state
+
+REPAIR ACTIONS TAKEN
+====================
+
+1. Created repair copy:
+   - Source: /workspace/objects/obj-025
+   - Destination: /workspace/repaired/obj-025
+   - All content preserved, no files deleted
+
+2. Fixed inventory.json (root level):
+   - Changed digest case in v1 state from uppercase to lowercase
+   - Before: "24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28"
+   - After:  "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28"
+   - This ensures the digest matches the manifest digest exactly
+
+3. Updated root inventory.json.sha512:
+   - Recalculated checksum after inventory.json modification
+   - Old checksum: 8c4e81232d9cd24453623b8c4bfd8fdbf9f9f58f0e5a8d65c24197dc923671b419eb0cb849ed8ebaa4e005394a8c6f7c6dd35217ac4ea772fdf2a0b7b0dc6499
+   - New checksum: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+
+4. Fixed v1/inventory.json:
+   - Applied same digest case correction to version inventory file
+   - Before: "24F950AAC7B9EA9B3CB728228A0C82B67C39E96B4B344798870D5DAEE93E3AE5931BAAE8C7CACFEA4B629452C38026A81D138BC7AAD1AF3EF7BFD5EC646D6C28"
+   - After:  "24f950aac7b9ea9b3cb728228a0c82b67c39e96b4b344798870d5daee93e3ae5931baae8c7cacfea4b629452c38026a81d138bc7aad1af3ef7bfd5ec646d6c28"
+
+5. Updated v1/inventory.json.sha512:
+   - Recalculated checksum for version inventory
+   - Old checksum: 8c4e81232d9cd24453623b8c4bfd8fdbf9f9f58f0e5a8d65c24197dc923671b419eb0cb849ed8ebaa4e005394a8c6f7c6dd35217ac4ea772fdf2a0b7b0dc6499
+   - New checksum: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+
+FINAL VALIDATION STATUS
+=======================
+
+Repaired Object Validation: VALID
+
+The repaired object at /workspace/repaired/obj-025 now passes all OCFL validation checks with no errors.
+
+SUMMARY
+=======
+
+Object Name: obj-025
+Initial Status: INVALID (2 errors)
+Final Status: VALID
+Actions Taken: 5 (copy, 2 inventory.json corrections, 2 checksum updates)
+Content Preserved: Yes (no files deleted)
+Repair Location: /workspace/repaired/obj-025

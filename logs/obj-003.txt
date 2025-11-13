@@ -1,0 +1,87 @@
+OCFL Object Validation and Repair Log
+=====================================
+
+Object ID: obj-003
+Date: 2025-11-12
+Tool: ocfl-tools v0.3.3
+
+INITIAL VALIDATION
+==================
+Command: ocfl validate --object=/workspace/objects/obj-003
+Status: INVALID
+Error Code: E095 (Path Conflict)
+Error Message: ERRO root inventory.json: path conflict for: 'sub-path'
+
+ROOT CAUSE ANALYSIS
+====================
+The object inventory contained conflicting logical paths in the version state:
+- Path 1: "sub-path/a_file.txt" (file within a directory)
+- Path 2: "sub-path" (directory/file with same name as parent)
+
+This violates OCFL 1.1 specification rule E095, which requires that logical
+paths not have path conflicts. A directory cannot be both a directory and
+a direct path simultaneously.
+
+REPAIR ACTIONS TAKEN
+====================
+
+Step 1: Backup Creation
+- Copied original object to /workspace/repaired/obj-003
+- Preserved all existing content and file structure
+
+Step 2: Inventory File Modifications
+- Modified /workspace/repaired/obj-003/inventory.json
+- Modified /workspace/repaired/obj-003/v1/inventory.json
+- Changed conflicting path from "sub-path" to "sub-path.txt"
+- This resolves the conflict while preserving both logical paths and content
+
+File: inventory.json (root)
+  - Line 23: Changed "sub-path" to "sub-path.txt"
+  - Logical path change:
+    BEFORE: "946af3bfd3b0b84ea0d99136085dcd66ee7e769371dbcd097ed35fd377116087e25d004afd68dc48e4eb0bcb6a434b04078577b531a7da1452296d1ae98d20b3": ["sub-path"]
+    AFTER:  "946af3bfd3b0b84ea0d99136085dcd66ee7e769371dbcd097ed35fd377116087e25d004afd68dc48e4eb0bcb6a434b04078577b531a7da1452296d1ae98d20b3": ["sub-path.txt"]
+
+File: v1/inventory.json (version inventory)
+  - Line 23: Changed "sub-path" to "sub-path.txt"
+  - Same change as root inventory for consistency
+
+Step 3: Checksum Recalculation
+- Recalculated SHA512 checksum for root inventory.json
+  Old checksum: (original)
+  New checksum: c7d83d3038828b9ad862493141fb1cfae6d13ed50f3eb9145bd8d811b8fca325db103834d90bb1afd04373fe4ab8afbf50e4773272936132194cf913b66f0d2b
+  File: /workspace/repaired/obj-003/inventory.json.sha512
+
+- Recalculated SHA512 checksum for v1 inventory.json
+  New checksum: c7d83d3038828b9ad862493141fb1cfae6d13ed50f3eb9145bd8d811b8fca325db103834d90bb1afd04373fe4ab8afbf50e4773272936132194cf913b66f0d2b
+  File: /workspace/repaired/obj-003/v1/inventory.json.sha512
+
+VALIDATION RESULTS
+==================
+
+Original Object
+- Path: /workspace/objects/obj-003
+- Status: INVALID
+- Error: E095 - Path conflict for 'sub-path'
+
+Repaired Object
+- Path: /workspace/repaired/obj-003
+- Validation Command: ocfl validate --object=/workspace/repaired/obj-003
+- Status: VALID (No errors reported)
+
+CONTENT PRESERVATION
+====================
+All original files and content are preserved:
+- /workspace/repaired/obj-003/0=ocfl_object_1.1 (OCFL version marker)
+- /workspace/repaired/obj-003/v1/content/a_file.txt (content file 1)
+- /workspace/repaired/obj-003/v1/content/another_file.txt (content file 2)
+
+The repair only modified logical path mappings, not actual file content.
+
+SUMMARY
+=======
+Object Name: obj-003
+Initial Status: INVALID (E095 - Path Conflict)
+Final Status: VALID
+Actions Performed: 2 inventory files modified, checksums recalculated
+Content Preserved: YES (all files intact)
+Repair Location: /workspace/repaired/obj-003

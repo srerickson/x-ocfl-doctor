@@ -20,7 +20,7 @@
       "created": "2021-03-31T10:21:21.740101149-05:00",
       "state": {
         "2c8b08da5ce60398e1f19af0e5dccc744df274b826abe585eaba68c525434806": [
-          "changed"
+          "file-1.txt"
         ],
         "f6936912184481f5edd4c304ce27c5a1a827804fc7f329f43d273b8621870776": [
           "file-2.txt"

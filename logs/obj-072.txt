@@ -1,0 +1,80 @@
+OCFL OBJECT VALIDATION AND REPAIR LOG
+================================================================================
+
+Object ID: obj-072
+Object Path: /workspace/objects/obj-072
+Log Date: 2025-11-13
+
+VALIDATION RESULTS
+================================================================================
+
+Initial Validation Command:
+  ocfl validate --object=/workspace/objects/obj-072
+
+Validation Status: VALID (with warnings)
+
+The object passed validation but generated the following warnings:
+
+1. WARN code W008 - Missing recommended field 'address'
+   Location: root inventory.json version v1 user
+   Description: The user object is missing the recommended 'address' field
+
+2. WARN code W009 - User address is not a URI
+   Location: root inventory.json version v1 user
+   Description: The user address field is not a valid URI (field was missing)
+
+3. WARN code W008 - Missing recommended field 'address'
+   Location: v1/inventory.json version v1 user
+   Description: The user object is missing the recommended 'address' field
+
+4. WARN code W009 - User address is not a URI
+   Location: v1/inventory.json version v1 user
+   Description: The user address field is not a valid URI (field was missing)
+
+OBJECT STRUCTURE
+================================================================================
+Object Version: OCFL 1.1
+Digest Algorithm: sha512
+Object ID: ark:123/abc
+Current Head Version: v1
+Content: 1 file (a_file.txt)
+
+Directory Structure:
+  - 0=ocfl_object_1.1 (declaration file)
+  - inventory.json (root inventory)
+  - inventory.json.sha512 (root inventory checksum)
+  - v1/ (version 1 directory)
+    - inventory.json (version inventory)
+    - content/
+      - a_file.txt
+
+ACTIONS TAKEN
+================================================================================
+
+Since the object is VALID (contains no errors, only warnings), no repairs were
+necessary. The object structure is correct and all content is intact.
+
+VALIDATION SUMMARY
+================================================================================
+
+Object Name: obj-072
+Initial Validation Status: VALID
+Errors Found: 0
+Warnings Found: 4 (all related to optional user address field)
+Content Preserved: Yes (all existing content intact)
+Final Status: VALID
+
+NOTES
+================================================================================
+
+The warnings are informational and indicate that the user field in the inventory
+should include an 'address' subfield formatted as a URI. This is a recommended
+field per OCFL 1.1 specification but not required for validity.
+
+Example of compliant user field:
+{
+  "name": "A Person",
+  "address": "mailto:person@example.org"
+}
+
+The object successfully passes all OCFL validation checks and is ready for use.

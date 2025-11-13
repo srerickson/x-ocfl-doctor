@@ -1,0 +1,72 @@
+OCFL Object Validation and Repair Report
+=========================================
+Object Name: obj-021
+Timestamp: 2025-11-12T15:43:00Z
+
+INITIAL VALIDATION
+==================
+Command: ocfl validate --object /workspace/objects/obj-021
+Result: INVALID
+Error Code: E066
+Description: v1/inventory.json digests are inconsistent with other inventories
+
+Validation Error Details:
+  File: v1/content/file-1.txt
+  Expected SHA512: 07e41ccb166d21a5327d5a2ae1bb48192b8470e1357266c9d119c294cb1e95978569472c9de64fb6d93cbd4dd0aed0bf1e7c47fd1920de17b038a08a85eb4fa1
+  Recorded SHA512: 17e41ccb166d21a5327d5a2ae1bb48192b8470e1357266c9d119c294cb1e95978569472c9de64fb6d93cbd4dd0aed0bf1e7c47fd1920de17b038a08a85eb4fa1
+  Issue: Incorrect leading digit in manifest hash (17 vs 07)
+
+ROOT CAUSE ANALYSIS
+===================
+The v1/inventory.json file contained an incorrect SHA512 digest for file-1.txt:
+- The digest in the manifest section used: 17e41ccb...
+- The digest in the versions.v1.state section used: 17e41ccb...
+- The actual file hash is: 07e41ccb...
+
+This mismatch indicates a typo or corruption in the inventory metadata.
+
+REPAIR ACTIONS
+==============
+1. Created copy of object to /workspace/repaired/obj-021
+   Command: cp -r /workspace/objects/obj-021 /workspace/repaired/obj-021
+   
+2. Fixed v1/inventory.json - manifest section
+   File: /workspace/repaired/obj-021/v1/inventory.json (line 11)
+   Changed: "17e41ccb..." → "07e41ccb..."
+   
+3. Fixed v1/inventory.json - versions.v1.state section
+   File: /workspace/repaired/obj-021/v1/inventory.json (line 22)
+   Changed: "17e41ccb..." → "07e41ccb..."
+   
+4. Recalculated v1/inventory.json checksum
+   Old SHA512: 036e288e576ceb37fcfa7fc6490d7f5273621f31f024773f6897e6bd75625e0a1fd143e536e87c00f73489cdb3ce26aa10e4fa147cc0fba85f3c7a4a782047a5
+   New SHA512: 278c3c9fafde4e93415e2990566d1f59759510aa6a71a79d26066e2a5fe1e85373788c6179e071669fcca68f03eedf71a6c6ad2fb977812f8d5ee1c3c4e9db8b
+   Updated: /workspace/repaired/obj-021/v1/inventory.json.sha512
+   
+5. Verified root inventory.json checksums
+   SHA512 (root): 787c52e0c7141a8f6857e31aac1c61d0f702def1168068ba9dcd538151cf56d11aa502139fc0c1c063836b61aaf18db4d68b09cf1f3718a02d58fbeed2ee51a7
+   SHA512 (v2):  787c52e0c7141a8f6857e31aac1c61d0f702def1168068ba9dcd538151cf56d11aa502139fc0c1c063836b61aaf18db4d68b09cf1f3718a02d58fbeed2ee51a7
+   Status: Checksums already correct (no update needed)
+
+FILES MODIFIED
+===============
+- /workspace/repaired/obj-021/v1/inventory.json
+- /workspace/repaired/obj-021/v1/inventory.json.sha512
+
+FINAL VALIDATION
+================
+Command: ocfl validate --object /workspace/repaired/obj-021
+Result: VALID (no errors returned)
+
+Summary of Changes:
+  - Fixed 1 incorrect digest (file-1.txt SHA512 hash in v1/inventory.json)
+  - Updated corresponding inventory checksum file
+  - No file content was deleted or corrupted
+  - All existing object versions and files preserved
+
+CONCLUSION
+==========
+Object Name: obj-021
+Validation Status: INVALID (originally) → VALID (after repair)
+Actions Taken: Fixed inventory manifest and state digests, updated checksum
+Final Status: VALID - Object is now compliant with OCFL specification

@@ -1,0 +1,81 @@
+================================================================================
+OCFL OBJECT VALIDATION AND REPAIR LOG - obj-076
+================================================================================
+Date: 2025-11-13
+Object ID: obj-076
+Object Path: /workspace/objects/obj-076
+
+================================================================================
+VALIDATION PROCESS
+================================================================================
+
+1. Initial Validation Command:
+   Command: ocfl validate --object=/workspace/objects/obj-076
+   Exit Code: 0 (Success)
+   Output: WARN extensions directory: unrecognized extension name: "unregistered"
+
+2. Validation Result: VALID
+   Status: The object passed OCFL validation with only a warning
+   Warning Code: W013 (Unregistered Extension)
+   Description: The object uses an extension named "unregistered" which is not
+                registered with the OCFL specification. This is a warning, not
+                an error.
+
+================================================================================
+OBJECT STRUCTURE
+================================================================================
+
+Root Directory Contents:
+  - 0=ocfl_object_1.1 (NAMASTE Declaration)
+  - inventory.json (Manifest and version information)
+  - inventory.json.sha512 (Checksum for inventory)
+  - extensions/ (Directory containing extension definitions)
+  - v1/ (Version 1 directory)
+
+Extensions:
+  - extensions/unregistered/ (Unregistered OCFL extension)
+
+Inventory Summary:
+  - ID: ark:123/abc
+  - Digest Algorithm: sha512
+  - Head Version: v1
+  - Number of Versions: 1
+  - Number of Files: 1
+
+Version v1 Content:
+  - File: a_file.txt
+  - Digest: 43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f
+  - Created: 2019-01-01T02:03:04Z
+  - Message: This fixture includes and unregistered extension
+  - User: A Person (https://example.org/a_person)
+
+================================================================================
+REPAIR ACTIONS
+================================================================================
+
+No repair was necessary. The object is valid according to OCFL specifications.
+The warning about the unregistered extension does not constitute an error and
+the object structure is intact.
+
+Status: NO ACTION REQUIRED
+
+================================================================================
+FINAL VALIDATION RESULT
+================================================================================
+
+Object: obj-076
+Initial Status: VALID
+Repair Required: NO
+Final Status: VALID
+Warning Summary: 1 warning (unregistered extension)
+Errors: 0
+Critical Issues: None
+
+The object is compliant with OCFL 1.1 specification and contains:
+  - Valid NAMASTE declaration
+  - Valid inventory.json file
+  - Valid checksums
+  - Proper version structure
+  - One unregistered extension (non-critical warning)
+
+================================================================================

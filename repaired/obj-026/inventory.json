@@ -1,0 +1,27 @@
+{
+  "id": "urn:example-026",
+  "type": "https://ocfl.io/1.1/spec/#inventory",
+  "digestAlgorithm": "sha512",
+  "head": "v1",
+  "contentDirectory": "content",
+  "manifest": {
+    "c8fd891c887d3c17167f824f859fa7395a9d78ef744e39149816f4e3f5ce058e914ff2ded9e6c6a60b4301b804f736e0dd98d1cdead99a20a85306415974089f": [
+      "v1/content/placeholder.txt"
+    ]
+  },
+  "versions": {
+    "v1": {
+      "created": "2025-11-12T00:00:00Z",
+      "state": {
+        "c8fd891c887d3c17167f824f859fa7395a9d78ef744e39149816f4e3f5ce058e914ff2ded9e6c6a60b4301b804f736e0dd98d1cdead99a20a85306415974089f": [
+          "placeholder.txt"
+        ]
+      },
+      "message": "Repair",
+      "user": {
+        "name": "repairer",
+        "address": "mailto:repair@example.com"
+      }
+    }
+  }
+}

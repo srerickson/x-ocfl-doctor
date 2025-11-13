@@ -1,0 +1,82 @@
+OCFL Object Validation and Repair Log
+=====================================
+Object: obj-017
+Date: 2025-11-12
+Tool: ocfl-tools
+
+VALIDATION RESULTS
+==================
+Initial Validation Status: INVALID
+Error Code: E017
+Error Message: contentDirectory contains '/' object_path=/workspace/objects/obj-017
+
+ROOT CAUSE ANALYSIS
+===================
+The inventory.json files (both root and v1 instances) contained an invalid
+contentDirectory value. According to OCFL 1.1 specification, the contentDirectory
+field must be a single path component without path separators (forward slashes).
+
+Original contentDirectory value: "content/dir"
+Corrected contentDirectory value: "content"
+
+The actual file structure showed content files located in v1/content/, not
+v1/content/dir/, indicating the path separator in contentDirectory was erroneous.
+
+REPAIRS APPLIED
+===============
+1. Created repair copy of object at: /workspace/repaired/obj-017
+
+2. Fixed Root Inventory File (/workspace/repaired/obj-017/inventory.json):
+   - Changed: "contentDirectory": "content/dir"
+   - To:      "contentDirectory": "content"
+   - Updated manifest paths from "v1/content/dir/test.txt" to "v1/content/test.txt"
+   - Recalculated inventory.json checksum
+
+3. Fixed Version 1 Inventory File (/workspace/repaired/obj-017/v1/inventory.json):
+   - Changed: "contentDirectory": "content/dir"
+   - To:      "contentDirectory": "content"
+   - Updated manifest paths from "v1/content/dir/test.txt" to "v1/content/test.txt"
+   - Recalculated inventory.json checksum
+
+4. Updated Checksums:
+   Old inventory.json.sha512: (original - invalid)
+   New inventory.json.sha512: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+
+   Updated files:
+   - /workspace/repaired/obj-017/inventory.json.sha512
+   - /workspace/repaired/obj-017/v1/inventory.json.sha512
+
+FILES MODIFIED
+==============
+- /workspace/repaired/obj-017/inventory.json
+- /workspace/repaired/obj-017/inventory.json.sha512
+- /workspace/repaired/obj-017/v1/inventory.json
+- /workspace/repaired/obj-017/v1/inventory.json.sha512
+
+PRESERVATION OF CONTENT
+=======================
+All existing content has been preserved:
+- File: /workspace/repaired/obj-017/v1/content/test.txt (unchanged)
+- Metadata and version history preserved
+- Object ID (urn:example-2) preserved
+- Created timestamp preserved
+- User information preserved
+- Commit message preserved
+
+POST-REPAIR VALIDATION
+======================
+Command: ocfl validate --object /workspace/repaired/obj-017
+Result: VALID (no errors)
+Status: SUCCESSFUL
+
+SUMMARY
+=======
+Object Name: obj-017
+Original Status: INVALID (E017 - contentDirectory contains path separator)
+Repair Status: COMPLETED SUCCESSFULLY
+Final Status: VALID
+Validation: PASSED
+
+The object has been successfully repaired by correcting the contentDirectory
+specification and updating corresponding manifest paths and checksums. The
+repaired object is now compliant with OCFL 1.1 specification.

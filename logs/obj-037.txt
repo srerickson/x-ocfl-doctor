@@ -1,0 +1,81 @@
+================================================================================
+OCFL OBJECT VALIDATION AND REPAIR LOG
+Object: obj-037
+Date: 2025-11-12
+================================================================================
+
+INITIAL VALIDATION
+------------------
+Command: ocfl validate --object=/workspace/objects/obj-037
+
+Status: INVALID
+
+Validation Errors Detected:
+- Error Code E060: open inventory.json.sha512: no such file or directory
+  Missing root-level inventory.json.sha512 sidecar file
+
+- Error Code E058: root inventory.json sidecar: file does not exist
+  Required sidecar file for root inventory.json is not present
+
+Object Structure Analysis:
+- Found OCFL declaration: 0=ocfl_object_1.1 (OCFL 1.1 object)
+- Found root inventory.json file
+- Found v1 version directory
+- Missing: inventory.json.sha512 sidecar at root level
+- v1 directory contains both inventory.json and inventory.json.sha512 (complete)
+
+Root Inventory Contents:
+- ID: http://example.org/E058_no_sidecar
+- Digest Algorithm: sha512
+- Head version: v1
+- Content file: v1/content/file.txt
+- Version created: 2020-05-21T19:00:00Z
+
+REPAIR ACTIONS
+--------------
+1. Created repair copy at: /workspace/repaired/obj-037
+   Command: cp -r /workspace/objects/obj-037 /workspace/repaired/obj-037
+
+2. Generated missing root-level inventory.json.sha512 sidecar
+   - Calculated SHA512 hash of inventory.json:
+     8decd531be34655146677e054ccb296b1006fbad884c6f87e76a1eaade934dca6ff6eb8db6c6a179e3f8da92626b0742dcf14f0225def954e63d149db2e06837
+
+   - Created sidecar file at: /workspace/repaired/obj-037/inventory.json.sha512
+   - Format: <hash> <filename>\n (standard OCFL sidecar format)
+
+3. Preserved all existing content:
+   - 0=ocfl_object_1.1 (unchanged)
+   - inventory.json (unchanged)
+   - v1/inventory.json (unchanged)
+   - v1/inventory.json.sha512 (unchanged)
+   - v1/content/file.txt (unchanged)
+
+RE-VALIDATION OF REPAIRED OBJECT
+---------------------------------
+Command: ocfl validate --object=/workspace/repaired/obj-037
+
+Status: VALID
+Exit Code: 0
+Output: (no errors)
+
+The repaired object passed all OCFL validation checks.
+
+SUMMARY
+-------
+Object Name: obj-037
+Original Status: INVALID
+Final Status: VALID
+
+Validation Errors Fixed: 2
+- E060: Missing inventory.json.sha512 sidecar file
+- E058: Root inventory.json sidecar file does not exist
+
+Actions Taken:
+- 1 copy operation (original preserved)
+- 1 sidecar file generated
+- 0 content deletions (all existing content preserved)
+- Full re-validation performed
+
+Repair Success: YES
+All OCFL requirements now satisfied.
+================================================================================

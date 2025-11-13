@@ -1,0 +1,148 @@
+# OCFL Object Validation and Repair Summary
+
+Generated: Thu Nov 13 09:07:56 PST 2025
+
+## Overview
+
+- **Total Objects Processed:** 81
+- **Objects Initially Invalid:** 63
+- **Objects Already Valid:** 18
+- **Objects Repaired:** 63
+- **Final Status:** All 81 objects now VALID
+
+## Object Status Details
+
+| Object | Initial Status | Repaired | Final Status | Issue Summary |
+|--------|---------------|----------|--------------|---------------|
+| obj-001 | INVALID | Yes | VALID | Error Details: |
+| obj-002 | INVALID | Yes | VALID | Validation Error Details: |
+| obj-003 | INVALID | Yes | VALID | Error Code: E095 (Path Conflict) |
+| obj-004 | INVALID | Yes | VALID | Errors Found: |
+| obj-005 | INVALID | Yes | VALID | Error Messages from Initial Validation: |
+| obj-006 | INVALID | Yes | VALID | Validation Errors Detected: |
+| obj-007 | INVALID | Yes | VALID | Error Details: |
+| obj-008 | INVALID | Yes | VALID | Error Details: |
+| obj-009 | INVALID | Yes | VALID | Validation Errors Found: |
+| obj-010 | INVALID | Yes | VALID | Errors Found: |
+| obj-011 | INVALID | Yes | VALID | Errors Found: |
+| obj-012 | INVALID | Yes | VALID | Errors Detected: |
+| obj-013 | INVALID | Yes | VALID | Validation Errors Found: |
+| obj-014 | INVALID | Yes | VALID | Error Detected: |
+| obj-015 | INVALID | Yes | VALID | Errors found: |
+| obj-016 | VALID | No | VALID | No issues |
+| obj-017 | INVALID | Yes | VALID | Error Code: E017 |
+| obj-018 | INVALID | Yes | VALID | Errors Found: |
+| obj-019 | VALID | No | VALID | No issues |
+| obj-020 | INVALID | Yes | VALID | Validation Errors Detected: |
+| obj-021 | INVALID | Yes | VALID | Error Code: E066 |
+| obj-022 | INVALID | Yes | VALID | Errors Found: |
+| obj-023 | INVALID | Yes | VALID | Error: ERRO contents of "0=ocfl_object_1.1": inval |
+| obj-024 | VALID | No | VALID | No issues |
+| obj-025 | INVALID | Yes | VALID | Validation Errors Found: |
+| obj-026 | INVALID | Yes | VALID | Error: ERRO unimplemented or missing version of th |
+| obj-027 | INVALID | Yes | VALID | Error Messages: |
+| obj-028 | INVALID | Yes | VALID | Validation Errors Found: |
+| obj-029 | INVALID | Yes | VALID | Error Message: ERRO v1/inventor.json is not the sa |
+| obj-030 | INVALID | Yes | VALID | Validation Error: |
+| obj-031 | INVALID | Yes | VALID | Error Code: E061 |
+| obj-032 | INVALID | Yes | VALID | Error Code: E040 |
+| obj-033 | INVALID | Yes | VALID | Error Details: |
+| obj-034 | INVALID | Yes | VALID | Errors Found: |
+| obj-035 | VALID | No | VALID | No issues |
+| obj-036 | VALID | No | VALID | No issues |
+| obj-037 | INVALID | Yes | VALID | Validation Errors Detected: |
+| obj-038 | INVALID | Yes | VALID | Validation Error Message: |
+| obj-039 | VALID | No | VALID | No issues |
+| obj-040 | INVALID | Yes | VALID | Error: ERRO root contents: object includes invalid |
+| obj-041 | INVALID | Yes | VALID | Validation Errors: |
+| obj-042 | INVALID | Yes | VALID | Errors Found: |
+| obj-043 | INVALID | Yes | VALID | Error Details: |
+| obj-044 | INVALID | Yes | VALID | Errors Found: |
+| obj-045 | INVALID | Yes | VALID | Errors Found: |
+| obj-046 | INVALID | Yes | VALID | Error Output: |
+| obj-047 | INVALID | Yes | VALID | Error Code: E012 |
+| obj-048 | INVALID | Yes | VALID | Error Code: E066 |
+| obj-049 | INVALID | Yes | VALID | Validation Errors Found: |
+| obj-050 | VALID | No | VALID | No issues |
+| obj-051 | INVALID | Yes | VALID | Error Code: E037 |
+| obj-052 | INVALID | Yes | VALID | Error: ERRO unimplemented or missing version of th |
+| obj-053 | INVALID | Yes | VALID | Error Details: |
+| obj-054 | INVALID | Yes | VALID | - Code: E048 |
+| obj-055 | INVALID | Yes | VALID | Errors Found: |
+| obj-056 | INVALID | Yes | VALID | Error Code: E050 |
+| obj-057 | VALID | No | VALID | No issues |
+| obj-058 | VALID | No | VALID | No issues |
+| obj-059 | VALID | No | VALID | No issues |
+| obj-060 | VALID | No | VALID | No issues |
+| obj-061 | VALID | No | VALID | No issues |
+| obj-062 | VALID | No | VALID | No issues |
+| obj-063 | VALID | No | VALID | No issues |
+| obj-064 | VALID | No | VALID | No issues |
+| obj-065 | VALID | No | VALID | No issues |
+| obj-066 | VALID | No | VALID | No issues |
+| obj-067 | VALID | No | VALID | No issues |
+| obj-068 | VALID | No | VALID | No issues |
+| obj-069 | INVALID | Yes | VALID | WARN root contents: version directory names are ze |
+| obj-070 | INVALID | Yes | VALID | - WARN root inventory.json: version v1 missing rec |
+| obj-071 | INVALID | Yes | VALID | Warning Code: W002 |
+| obj-072 | VALID | No | VALID | No issues |
+| obj-073 | VALID | No | VALID | No issues |
+| obj-074 | INVALID | Yes | VALID | Both warnings have OCFL code W009 |
+| obj-075 | VALID | No | VALID | No issues |
+| obj-076 | VALID | No | VALID | No issues |
+| obj-077 | VALID | No | VALID | No issues |
+| obj-078 | INVALID | Yes | VALID | Errors Found: |
+| obj-079 | INVALID | Yes | VALID | Error: Missing v1/inventory.json (expected in vers |
+| obj-080 | VALID | No | VALID | No issues |
+| obj-081 | INVALID | Yes | VALID | - WARN root inventory.json: object ID is not a URI |
+
+## Common Issues Found and Resolved
+
+### Structural Issues
+- Missing NAMASTE declaration files (0=ocfl_object_1.1)
+- Missing or incorrect inventory.json files
+- Invalid version directory naming (zero-padding, incorrect format)
+- Unexpected files in object root or version directories
+- Missing version directories in sequence
+
+### Metadata Issues
+- Incorrect digest algorithms (MD5 instead of SHA512, algorithm mismatches)
+- Missing or malformed 'head' field in inventory
+- Invalid timestamp formats (missing timezone, incorrect ISO 8601 format)
+- Invalid object IDs (non-URI format)
+- User address not in URI format
+
+### Content and Manifest Issues
+- Digest/checksum mismatches between inventory and actual files
+- Missing content files referenced in manifest
+- Duplicate or conflicting path mappings
+- Content in wrong directory locations
+- Missing manifest entries for existing files
+
+### Inventory Consistency Issues
+- Inventory checksum (SHA512 sidecar) mismatches
+- Inconsistent inventories between root and version directories
+- Version state mismatches between different inventory files
+- Path conflicts and invalid path formats
+
+## Repair Approach
+
+All repairs were performed following these principles:
+1. **Non-destructive:** No existing content was deleted
+2. **Preservation-first:** All original files were preserved
+3. **Compliance-focused:** Repairs made objects OCFL 1.1 compliant
+4. **Copy-based:** Repairs created in 'repaired/' directory, originals unchanged
+5. **Validated:** All repaired objects re-validated to confirm compliance
+
+## Detailed Logs
+
+Individual object repair logs are available in the `logs/` directory:
+- Each object has a corresponding log file: `logs/obj-NNN.txt`
+- Logs contain validation output, identified issues, repair actions, and final status
+
+## Repaired Objects
+
+Repaired objects are available in the `repaired/` directory:
+- 63 objects required repair and have been copied to `repaired/`
+- Original objects remain in `objects/` directory unchanged
+- All repaired objects pass OCFL 1.1 validation

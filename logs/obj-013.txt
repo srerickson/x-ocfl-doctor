@@ -1,0 +1,99 @@
+===============================================
+OCFL Object Validation and Repair Log
+===============================================
+
+Object ID: obj-013
+
+===============================================
+INITIAL VALIDATION
+===============================================
+
+Date: 2025-11-12
+Command: ocfl validate --object objects/obj-013
+
+Result: INVALID
+
+Validation Errors Found:
+1. ERROR E060: Checksum mismatch in inventory.json.sha512
+   - Stored hash: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+   - Actual hash: cf60208ec99d58e971bc21fdf05356706d5b9cc2af13ed3edae5c0e54fc23a6d93b91c9ec1ccf21f9094ca170ac9c214a005382ed69e71e8aaf87b4619c93ffb
+
+2. ERROR E064: Root inventory.json digest does not match v1/inventory.json
+   - Root inventory version message: "Changed!"
+   - v1 inventory version message: "Simple example"
+
+3. ERROR W011: Warning about message mismatch in v1 version block
+
+===============================================
+REPAIR ACTIONS TAKEN
+===============================================
+
+Step 1: Created backup copy
+- Source: objects/obj-013
+- Destination: repaired/obj-013
+- Status: SUCCESS
+
+Step 2: Fixed root inventory.json message
+- Changed version message from "Changed!" to "Simple example"
+- Ensured consistency with v1/inventory.json
+- Status: SUCCESS
+
+Step 3: Recalculated root inventory.json hash
+- New hash: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+- Updated inventory.json.sha512
+- Status: SUCCESS
+
+Step 4: Fixed v1/inventory.json.sha512
+- Updated hash to match v1/inventory.json
+- New hash: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+- Status: SUCCESS
+
+===============================================
+FINAL VALIDATION
+===============================================
+
+Command: ocfl validate --object repaired/obj-013
+
+Result: VALID
+
+No errors or warnings detected. The repaired object is now valid according to OCFL 1.1 specification.
+
+===============================================
+FILES MODIFIED IN REPAIR
+===============================================
+
+1. /workspace/repaired/obj-013/inventory.json
+   - Changed message in v1 version block from "Changed!" to "Simple example"
+
+2. /workspace/repaired/obj-013/inventory.json.sha512
+   - Updated checksum to match corrected inventory.json
+
+3. /workspace/repaired/obj-013/v1/inventory.json.sha512
+   - Updated checksum to match v1/inventory.json
+
+All content files preserved. No data loss occurred during repair.
+
+===============================================
+SUMMARY
+===============================================
+
+Object Name: obj-013
+Object ID: urn:example-2
+Validation Status (Initial): INVALID
+Validation Status (Final): VALID
+
+Root Cause: Inconsistent version message between root inventory and version inventory, causing checksum mismatches
+
+Repairs Completed: 3
+- Message alignment between root and version inventory
+- Checksum correction for root inventory.json.sha512
+- Checksum correction for v1/inventory.json.sha512
+
+Content Status: ALL CONTENT PRESERVED
+- v1/content/test.txt: Unchanged
+- No files deleted or lost
+
+Repair Success: YES
+Object is now compliant with OCFL 1.1 specification.
+
+===============================================

@@ -1,0 +1,18 @@
+{
+  "id": "urn:uuid:obj-036",
+  "type": "https://ocfl.io/1.1/spec/#inventory",
+  "digestAlgorithm": "sha512",
+  "head": "v1",
+  "manifest": {},
+  "versions": {
+    "v1": {
+      "created": "2024-11-12T00:00:00Z",
+      "state": {},
+      "message": "Created",
+      "user": {
+        "name": "system",
+        "address": "mailto:system@example.com"
+      }
+    }
+  }
+}

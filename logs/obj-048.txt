@@ -1,0 +1,64 @@
+OCFL Object Validation and Repair Report
+========================================
+
+Object Name: obj-048
+Initial Validation Status: INVALID
+Final Status: VALID
+
+========================================
+VALIDATION ERRORS FOUND
+========================================
+
+Error Code: E066
+Description: v1/inventory.json has different logical state in its v1 version block than the root inventory.json
+
+Details:
+- Root inventory.json defined v1 state as: ["test.txt"]
+- v1/inventory.json defined v1 state as: ["test.txt", "1.txt", "2.txt", "3.txt"]
+- Only "test.txt" file actually exists in v1/content directory
+- The referenced files "1.txt", "2.txt", "3.txt" do not exist in the object
+
+========================================
+REPAIR ACTIONS TAKEN
+========================================
+
+1. Created copy in /workspace/repaired/obj-048
+   - Full recursive copy of original object
+
+2. Fixed v1/inventory.json content
+   - Updated v1 version state to match root inventory.json
+   - Removed references to non-existent files: "1.txt", "2.txt", "3.txt"
+   - Kept only "test.txt" which corresponds to actual content
+   - Change: state contained [test.txt, 1.txt, 2.txt, 3.txt] -> [test.txt]
+
+3. Updated v1/inventory.json.sha512
+   - Computed new SHA512 hash: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+   - Previous hash: 2d40a3ed6431edcf2643c0a5c0b30b9128646d78da4fe00eca970dd8c212fbe44bcb604ba9729f9e14c4bd952d51e68fecc30be5c2574f1106b0cd084e2db5b1
+
+========================================
+RE-VALIDATION
+========================================
+
+Command: ocfl validate --object=/workspace/repaired/obj-048
+Result: VALID (no errors returned)
+
+========================================
+SUMMARY
+========================================
+
+Object Name: obj-048
+Initial Validation Status: INVALID
+Repair Status: COMPLETED SUCCESSFULLY
+Final Validation Status: VALID
+
+Key Issues Resolved:
+- Inconsistent logical state between root inventory and v1 inventory
+- Checksum mismatch for v1/inventory.json
+
+Existing Content Preserved:
+- All actual files preserved (v1/content/test.txt)
+- Object structure maintained
+- Version metadata preserved
+- User and timestamp information intact
+
+Repair Location: /workspace/repaired/obj-048

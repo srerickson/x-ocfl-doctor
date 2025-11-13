@@ -1,0 +1,104 @@
+=== OCFL Object Validation and Repair Log ===
+Object: obj-071
+Date: 2025-11-13
+Timestamp: $(date)
+
+=== INITIAL VALIDATION ===
+Command: ocfl validate --object=/workspace/objects/obj-071
+
+Validation Result: INVALID
+Warning Code: W002
+Issue: Extra directory in v1: extra_dir
+
+=== OBJECT STRUCTURE ANALYSIS ===
+Expected structure (OCFL 1.1):
+- 0=ocfl_object_1.1 (NAMASTE file)
+- inventory.json
+- inventory.json.sha512
+- v1/
+  - inventory.json
+  - inventory.json.sha512
+  - content/
+    - a_file.txt
+
+Actual structure:
+- 0=ocfl_object_1.1 (NAMASTE file) ✓
+- inventory.json ✓
+- inventory.json.sha512 ✓
+- v1/
+  - inventory.json ✓
+  - inventory.json.sha512 ✓
+  - content/
+    - a_file.txt ✓
+  - extra_dir/ (NOT IN INVENTORY - ISSUE)
+    - something.txt
+
+=== ROOT CAUSE ===
+The directory v1/extra_dir and its contents (something.txt) are extra files that are not 
+referenced in the OCFL inventory. According to OCFL specification, only these types of 
+directories are allowed:
+- inventory.json (required)
+- inventory.json.sha512 (required)
+- content/ (used for file storage)
+
+Extra directories at the version level violate the specification.
+
+=== REPAIR STRATEGY ===
+The extra_dir directory needs to be moved to preserve content while fixing the violation.
+Solution: Move v1/extra_dir to v1/content/extra_dir_preserved/ so it remains but is properly
+contained within the content directory structure.
+
+=== REPAIR ACTIONS ===
+1. Created copy of obj-071 in /workspace/repaired/obj-071
+   - Command: cp -r /workspace/objects/obj-071 /workspace/repaired/obj-071
+   - Status: SUCCESS
+
+2. Moved extra_dir to content directory
+   - Command: mv /workspace/repaired/obj-071/v1/extra_dir /workspace/repaired/obj-071/v1/content/extra_dir_preserved
+   - Reason: v1/extra_dir was not in OCFL spec; moved it under content/ to preserve content
+   - Status: SUCCESS
+
+3. Updated root inventory.json
+   - Added new manifest entry for preserved file:
+     Hash: c59627932be9e831e2f693768f462c24f0df9bccb3033a9850d05425fc16b504354556618fa9f5bcf381b2e2b98509d32c980ff6468dae8b51045837e41b879b
+     Path: v1/content/extra_dir_preserved/something.txt
+   - Added new state entry for v1 version with same hash and path reference
+   - Recalculated and updated inventory.json.sha512
+   - Status: SUCCESS
+
+4. Updated v1/inventory.json
+   - Added new manifest entry with full path reference (v1/content/extra_dir_preserved/something.txt)
+   - Added new state entry for the file with relative path (extra_dir_preserved/something.txt)
+   - Recalculated and updated v1/inventory.json.sha512
+   - Status: SUCCESS
+
+5. Re-validation of repaired object
+   - Command: ocfl validate --object=/workspace/repaired/obj-071
+   - Result: VALID (no errors or warnings)
+   - Status: SUCCESS
+
+=== FINAL STRUCTURE OF REPAIRED OBJECT ===
+/workspace/repaired/obj-071/
+├── 0=ocfl_object_1.1
+├── inventory.json (UPDATED with new file reference)
+├── inventory.json.sha512 (UPDATED)
+└── v1/
+    ├── inventory.json (UPDATED with new file reference)
+    ├── inventory.json.sha512 (UPDATED)
+    └── content/
+        ├── a_file.txt (preserved)
+        └── extra_dir_preserved/
+            └── something.txt (relocated and registered)
+
+=== SUMMARY ===
+Object Name: obj-071
+Initial Validation Status: INVALID (W002: extra directory in v1)
+Actions Taken:
+  - Identified extraneous directory (v1/extra_dir) not in OCFL spec
+  - Moved directory contents under content/ to maintain structure
+  - Updated all inventory files to register the relocated file
+  - Recalculated all integrity checksums
+
+Final Validation Status: VALID
+All content preserved: Yes
+Repair successful: Yes

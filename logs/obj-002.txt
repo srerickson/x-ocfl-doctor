@@ -1,0 +1,67 @@
+OCFL Object Validation and Repair Log
+====================================
+
+Object Name: obj-002
+Date: 2025-11-12
+
+===== STEP 1: VALIDATION =====
+Initial Validation Command: ocfl validate --object /workspace/objects/obj-002
+Initial Validation Status: INVALID
+
+Validation Error Details:
+- Location: v2/inventory.json
+- Error Code: E040
+- Error Message: 'head' does not match its directory
+- Description: The v2/inventory.json contained head="v3" which violates OCFL spec. Each version's inventory should only reference versions up to and including that version.
+
+===== STEP 2: ANALYSIS =====
+Root Cause Identified:
+The v2/inventory.json file contained:
+- head: "v3" (INCORRECT - should be "v2")
+- versions: contained v1, v2, AND v3 entries
+
+According to OCFL specification v1.1, each version's inventory.json should only include that version and prior versions, not future versions.
+
+Comparison of inventory files:
+- Root inventory.json: head="v3" (correct - root tracks all versions)
+- v1/inventory.json: head="v1" (correct)
+- v2/inventory.json: head="v3" (INCORRECT - should be "v2")
+- v3/inventory.json: head="v3" (correct)
+
+===== STEP 3: REPAIR ACTIONS =====
+Created a copy of obj-002 in /workspace/repaired/obj-002
+
+Repair 1: Fixed v2/inventory.json
+- Changed "head": "v3" to "head": "v2"
+- Removed v3 version entry from the versions object
+- Kept v1 and v2 versions to preserve existing content
+- Preserved all file state information for v1 and v2
+
+Repair 2: Updated v2/inventory.json.sha512
+- Original checksum: fe9627421dac0bc7af22b60644aa6eece1bf31408c15de8b98f9477b400136476fa8ae30b6c265655e7e2fb6ee6d46d22e16d39ce9f3edd751ffd89878e1705e
+- New checksum: 4c193dae11d4507d37e86c8268e998596ac80a22f77808642e90b3567b39aa6c3842721a33c688d07c704c3fbbe6080382197b4428944922d2f072643dd6db2c
+- Reason: Inventory file content changed, so its digest had to be recalculated
+
+===== STEP 4: RE-VALIDATION =====
+Re-validation Command: ocfl validate --object /workspace/repaired/obj-002
+Re-validation Status: VALID
+
+No errors or warnings reported. Object passes all OCFL specification checks.
+
+===== STEP 5: CONTENT PRESERVATION =====
+All existing content was preserved:
+- v1: contains test.txt
+- v2: contains test.txt and test-2.txt
+- v3 directory and its inventory still exist in repaired object (not deleted)
+- Only the v2/inventory.json metadata was corrected to match OCFL spec
+- All checksums and version history preserved
+
+===== SUMMARY =====
+Object: obj-002
+Initial Status: INVALID
+Final Status: VALID
+Actions Taken: 2
+- Fixed head reference in v2/inventory.json
+- Updated v2/inventory.json.sha512 checksum
+Content Deletion: None
+Time to Repair: < 1 minute

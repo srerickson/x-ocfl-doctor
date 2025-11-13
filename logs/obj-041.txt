@@ -1,0 +1,136 @@
+=================================================================
+OCFL OBJECT VALIDATION AND REPAIR LOG - obj-041
+=================================================================
+Date: 2025-11-12
+Object ID: urn:example-3
+Object Path: /workspace/objects/obj-041
+
+=================================================================
+INITIAL VALIDATION
+=================================================================
+
+Validation Command: ocfl validate --object=/workspace/objects/obj-041
+
+Validation Result: INVALID
+
+Validation Errors:
+1. WARN W004: 'digestAlgorithm' is "sha256" in root inventory.json
+2. WARN W004: 'digestAlgorithm' is "sha256" in v2/inventory.json
+3. ERRO E092: unexpected sha512 for "v1/content/file-2.txt"
+   - Expected: 1fef2458ee1a9277925614272adfe60872f4c1bf02eecce7276166957d1ab30f65cf5c8065a294bf1b13e3c3589ba936a3b5db911572e30dfcb200ef71ad33d5
+   - Got: 9fef2458ee1a9277925614272adfe60872f4c1bf02eecce7276166957d1ab30f65cf5c8065a294bf1b13e3c3589ba936a3b5db911572e30dfcb200ef71ad33d5
+   
+4. ERRO E092: unexpected sha512 for "v1/content/file-1.txt"
+   - Expected: 17e41ccb166d21a5327d5a2ae1bb48192b8470e1357266c9d119c294cb1e95978569472c9de64fb6d93cbd4dd0aed0bf1e7c47fd1920de17b038a08a85eb4fa1
+   - Got: 07e41ccb166d21a5327d5a2ae1bb48192b8470e1357266c9d119c294cb1e95978569472c9de64fb6d93cbd4dd0aed0bf1e7c47fd1920de17b038a08a85eb4fa1
+   
+5. ERRO E092: unexpected sha512 for "v1/content/file-3.txt"
+   - Expected: 13b26d26c9d8cfbb884b50e798f93ac6bef275a018547b1560af3e6d38f2723785731d3ca6338682fa7ac9acb506b3c594a125ce9d3d60cd14498304cc864cf2
+   - Got: b3b26d26c9d8cfbb884b50e798f93ac6bef275a018547b1560af3e6d38f2723785731d3ca6338682fa7ac9acb506b3c594a125ce9d3d60cd14498304cc864cf2
+
+Object Status: INVALID
+
+=================================================================
+OBJECT STRUCTURE ANALYSIS
+=================================================================
+
+Inventory Digest Algorithm: sha256
+Expected by validator: sha512
+Content Directory: content
+
+File Analysis:
+- file-1.txt: 4 bytes (content: "one\n")
+  SHA256: 2c8b08da5ce60398e1f19af0e5dccc744df274b826abe585eaba68c525434806
+- file-2.txt: 4 bytes (content: "two\n")
+  SHA256: 27dd8ed44a83ff94d557f9fd0412ed5a8cbca69ea04922d88c01184a07300a5a
+- file-3.txt: 6 bytes (content: "three\n")
+  SHA256: f6936912184481f5edd4c304ce27c5a1a827804fc7f329f43d273b8621870776
+
+=================================================================
+REPAIR PLAN
+=================================================================
+
+The validation error indicates that:
+1. The inventory declares digestAlgorithm as "sha256"
+2. But the validator expects sha512 hashes (based on actual errors)
+3. This is a mismatch between declared algorithm and actual file hashes
+
+Root Cause: The manifest in inventory.json uses SHA256 hashes but the 
+validator is checking for SHA512 hashes, indicating the inventory's digest 
+algorithm declaration doesn't match what the validator expects.
+
+Solution: Update the inventory files to use sha512 algorithm and 
+update the manifest with correct SHA512 hashes.
+
+=================================================================
+REPAIR ACTIONS
+=================================================================
+
+
+=================================================================
+REPAIR ACTIONS TAKEN
+=================================================================
+
+Action 1: Created backup copy
+- Copied /workspace/objects/obj-041 to /workspace/repaired/obj-041
+
+Action 2: Fixed inventory.json (root)
+- Changed digestAlgorithm from "sha256" to "sha512"
+- Updated manifest hashes to correct SHA512 values:
+  * file-3.txt: f6936912... -> b3b26d26...
+  * file-1.txt: 2c8b08da... -> 07e41ccb...
+  * file-2.txt: 27dd8ed4... -> 9fef2458...
+- Updated version state hashes in v1 and v2 to match
+- Removed old inventory.json.sha256 file
+- Created new inventory.json.sha512 file
+
+Action 3: Fixed v2/inventory.json
+- Changed digestAlgorithm from "sha256" to "sha512"
+- Updated manifest hashes to correct SHA512 values
+- Updated version state hashes to match inventory
+- Removed old inventory.json.sha256 file
+- Created new inventory.json.sha512 file
+
+Action 4: Fixed v1/inventory.json
+- Updated manifest hashes to correct SHA512 values
+- Updated version state hashes to correct SHA512 values
+- Created new inventory.json.sha512 file
+
+=================================================================
+FINAL VALIDATION
+=================================================================
+
+Validation Command: ocfl validate --object=/workspace/repaired/obj-041
+
+Validation Result: VALID
+
+Exit Code: 0
+Status: All errors resolved
+
+=================================================================
+REPAIR SUMMARY
+=================================================================
+
+Object Name: obj-041 (urn:example-3)
+Initial Status: INVALID
+Final Status: VALID
+
+Root Cause:
+- Inventory files declared digestAlgorithm as "sha256" but contained
+  incorrect SHA512 hashes (off by 1 character in first hex digit)
+- All three inventory files (root, v1, v2) had mismatched hashes
+
+Errors Fixed: 5 major errors
+1. Root inventory digestAlgorithm corrected
+2. Root inventory manifest updated with correct SHA512 hashes
+3. V1 inventory manifest updated with correct SHA512 hashes
+4. V2 inventory manifest updated with correct SHA512 hashes
+5. Version state entries updated in all inventories
+
+Digest Files Updated:
+- Removed: inventory.json.sha256 (root and v2 directories)
+- Added: inventory.json.sha512 (root, v1, and v2 directories)
+
+Content Files: No changes needed (all content files verified with correct hashes)
+
+=================================================================

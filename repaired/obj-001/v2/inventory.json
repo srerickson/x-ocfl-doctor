@@ -6,7 +6,7 @@
   "contentDirectory": "content",
   "manifest": {
     "b3b26d26c9d8cfbb884b50e798f93ac6bef275a018547b1560af3e6d38f2723785731d3ca6338682fa7ac9acb506b3c594a125ce9d3d60cd14498304cc864cf2": [
-      "v2/content/file-4.txt"
+      "v2/content/file-4.txt", "v1/content/file-3.txt"
     ],
     "07e41ccb166d21a5327d5a2ae1bb48192b8470e1357266c9d119c294cb1e95978569472c9de64fb6d93cbd4dd0aed0bf1e7c47fd1920de17b038a08a85eb4fa1": [
       "v1/content/file-1.txt"

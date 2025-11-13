@@ -1,0 +1,80 @@
+OCFL Object Validation and Repair Log
+======================================
+
+Object Name: obj-051
+Date: 2025-11-12
+
+STEP 1: INITIAL VALIDATION
+==========================
+Command: ocfl validate --object /workspace/objects/obj-051
+
+Result: INVALID
+Error Code: E037
+Error Message: v1/inventory.json: 'id' doesn't match value in root inventory
+
+ANALYSIS
+========
+The object contains inconsistent 'id' values across inventory files:
+- Root inventory.json: id = "urn:example-2"
+- v1/inventory.json: id = "urn:example-two"  (MISMATCH)
+- v2/inventory.json: id = "urn:example-2"
+
+According to OCFL Specification Error E037, the 'id' field in version-level
+inventory files must match the object's root inventory id.
+
+STEP 2: REPAIR PROCESS
+======================
+
+2.1 Create Repaired Copy
+Command: cp -r /workspace/objects/obj-051 /workspace/repaired/obj-051
+Result: Success
+
+2.2 Fix v1/inventory.json
+Action: Updated the 'id' field from "urn:example-two" to "urn:example-2"
+File: /workspace/repaired/obj-051/v1/inventory.json
+Change: Line 2, "id": "urn:example-two" -> "id": "urn:example-2"
+
+2.3 Recompute v1/inventory.json Digest
+Command: sha512sum /workspace/repaired/obj-051/v1/inventory.json
+Old Hash: fa05de74e4e488a0aea4eb1af79eabebe1ca81c61798d2b3bc3ea19f7689a67564849c948a36185b2f75aad9e79085934412793af74937d034dd98bd58dd9b55
+New Hash: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+
+File: /workspace/repaired/obj-051/v1/inventory.json.sha512
+Updated with new digest hash
+
+2.4 Verify Root Inventory Digest
+Command: sha512sum /workspace/repaired/obj-051/inventory.json
+Hash: 4c193dae11d4507d37e86c8268e998596ac80a22f77808642e90b3567b39aa6c3842721a33c688d07c704c3fbbe6080382197b4428944922d2f072643dd6db2c
+Status: No changes needed (already matches file)
+
+STEP 3: FINAL VALIDATION
+========================
+Command: ocfl validate --object /workspace/repaired/obj-051
+
+Result: VALID
+No errors detected
+
+SUMMARY
+=======
+Object Name: obj-051
+Initial Status: INVALID (E037 error)
+Final Status: VALID
+
+Actions Taken:
+1. Identified id mismatch in v1/inventory.json (was "urn:example-two", should be "urn:example-2")
+2. Created copy at /workspace/repaired/obj-051
+3. Fixed v1/inventory.json id field
+4. Recomputed and updated v1/inventory.json.sha512 digest
+5. Verified root inventory digest integrity
+
+Files Modified:
+- /workspace/repaired/obj-051/v1/inventory.json (id field corrected)
+- /workspace/repaired/obj-051/v1/inventory.json.sha512 (digest updated)
+
+Existing Content Preserved:
+- All version directories (v1, v2)
+- All content files in v1/content/ and v2/content/
+- Root inventory.json and v2/inventory.json
+- All other OCFL structure files
+
+Validation Result: VALID - Object structure now complies with OCFL 1.1 specification

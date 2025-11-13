@@ -1,0 +1,56 @@
+OCFL Object Validation and Repair Log
+=====================================
+Object: obj-065
+Date: 2025-11-13
+Tool: ocfl-tools v0.3.3
+
+VALIDATION PROCESS
+==================
+
+Step 1: Initial Setup
+- Located object at: /workspace/objects/obj-065
+- Created NAMASTE file for storage root: /workspace/objects/0=ocfl_1.1
+- Configuration: OCFL v1.1
+
+Step 2: Object Structure Analysis
+- Object ID: http://example.org/minimal_mixed_digests
+- Digest Algorithm: sha512
+- Head Version: v1
+- Versions: 1 (v1)
+
+Step 3: Content Verification
+File Structure:
+- /workspace/objects/obj-065/0=ocfl_object_1.1
+- /workspace/objects/obj-065/inventory.json
+- /workspace/objects/obj-065/inventory.json.sha512
+- /workspace/objects/obj-065/v1/inventory.json
+- /workspace/objects/obj-065/v1/inventory.json.sha512
+- /workspace/objects/obj-065/v1/content/a_file.txt
+
+File Content Digest Verification:
+- a_file.txt content: "Hello! I am a file.\n"
+- SHA512 calculated: 43a43fe8a8a082d3b5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f (lowercase)
+- Manifest digest: 43A43fE8A8A082D3B5343dfaf2fd0c8b8e370675b1f376e92e9994612c33ea255b11298269d72f797399ebb94edeefe53df243643676548f584fb8603ca53a0f (mixed case)
+- Note: OCFL allows case-insensitive digest comparison, and manifest/state maintain exact string match with mixed case
+
+Step 4: Validation Execution
+Command: ocfl validate --object /workspace/objects/obj-065
+Result: VALID (Exit code: 0)
+
+VALIDATION RESULT
+=================
+Status: VALID
+
+Actions Taken: NONE
+- Object passed validation without requiring any repairs
+- No validation errors detected
+- No inventory issues found
+- All checksums verified correctly
+- All file references valid
+
+FINAL STATUS
+============
+Object Name: obj-065
+Validation Status: VALID
+Final Status: PASSED - No repairs needed
+No copy created in repaired/ directory

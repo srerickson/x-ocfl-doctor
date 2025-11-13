@@ -1,0 +1,109 @@
+OCFL OBJECT VALIDATION AND REPAIR LOG
+======================================
+
+Object: obj-010
+Date: 2025-11-12
+
+INITIAL VALIDATION
+==================
+Command: ocfl validate --object /workspace/objects/obj-010
+
+Status: INVALID
+Errors Found:
+  1. OCFL Code E052: invalid path '../../file-2.txt' in inventory.json state section
+     - Location: /workspace/objects/obj-010/inventory.json, line 26
+     - Issue: Path contains '..' which violates OCFL path restrictions
+     - Related path in v1/inventory.json: line 26
+
+  2. OCFL Code E052: invalid path '//file-3.txt' in inventory.json state section
+     - Location: /workspace/objects/obj-010/inventory.json, line 29
+     - Issue: Path starts with '//' which violates OCFL path restrictions
+     - Related path in v1/inventory.json: line 29
+
+  3. OCFL Code E052: invalid path '/file-1.txt' in inventory.json state section
+     - Location: /workspace/objects/obj-010/inventory.json, line 23
+     - Issue: Path starts with '/' which violates OCFL path restrictions
+     - Related path in v1/inventory.json: line 23
+
+ROOT CAUSE ANALYSIS
+===================
+The inventory.json files contain invalid logical paths in the state section that violate OCFL 1.1 specification section 3.2.2. Specifically:
+- Paths must not start with '/'
+- Paths must not contain path traversal sequences like '..'
+- Paths must be relative to the object root
+
+The manifest correctly references valid content paths (e.g., "v1/content/file-1.txt"), but the state section uses invalid logical path names.
+
+REPAIR ACTIONS
+==============
+
+Step 1: Created backup copy
+  - Source: /workspace/objects/obj-010
+  - Destination: /workspace/repaired/obj-010
+  - Status: Success
+
+Step 2: Fixed /workspace/repaired/obj-010/inventory.json
+  - Line 23: Changed '/file-1.txt' to 'file-1.txt'
+  - Line 26: Changed '../../file-2.txt' to 'file-2.txt'
+  - Line 29: Changed '//file-3.txt' to 'file-3.txt'
+  - Reason: Remove invalid path prefixes and path traversal sequences
+  - Preservation: All content references and digests unchanged - existing content preserved
+
+Step 3: Updated root inventory.json checksum
+  - File: /workspace/repaired/obj-010/inventory.json.sha512
+  - Recalculated SHA512 digest of modified inventory.json
+  - Status: Success
+
+Step 4: Fixed /workspace/repaired/obj-010/v1/inventory.json
+  - Line 23: Changed '/file-1.txt' to 'file-1.txt'
+  - Line 26: Changed '../../file-2.txt' to 'file-2.txt'
+  - Line 29: Changed '//file-3.txt' to 'file-3.txt'
+  - Reason: Version-specific inventory must match root inventory state
+  - Preservation: All content references and digests unchanged - existing content preserved
+
+Step 5: Updated version inventory.json checksum
+  - File: /workspace/repaired/obj-010/v1/inventory.json.sha512
+  - Recalculated SHA512 digest of modified v1/inventory.json
+  - Status: Success
+
+RE-VALIDATION OF REPAIRED OBJECT
+=================================
+Command: ocfl validate --object /workspace/repaired/obj-010
+
+Status: VALID - No errors found
+
+The repaired object now conforms to the OCFL 1.1 specification.
+
+CONTENT PRESERVATION VERIFICATION
+=================================
+The following content files were verified to exist and were not modified:
+  - /workspace/repaired/obj-010/v1/content/file-1.txt
+  - /workspace/repaired/obj-010/v1/content/file-2.txt
+  - /workspace/repaired/obj-010/v1/content/file-3.txt
+
+All manifest entries remain intact with original digest values.
+
+SUMMARY
+=======
+Object Name: obj-010
+Original Status: INVALID
+Final Status: VALID
+Repair Location: /workspace/repaired/obj-010
+
+Errors Fixed: 3
+  - Invalid path with leading slash: 1
+  - Invalid path with leading double slash: 1
+  - Invalid path with traversal sequence (..): 1
+
+Actions Taken:
+  1. Created repair copy
+  2. Fixed inventory.json logical paths (3 corrections)
+  3. Recalculated root inventory checksum
+  4. Fixed v1/inventory.json logical paths (3 corrections)
+  5. Recalculated version inventory checksum
+  6. Validated repaired object successfully
+
+Content Preservation: All existing content maintained - no files deleted
+Validation Result: PASS
+
+Repair completed successfully. The object is now compliant with OCFL 1.1 specification.

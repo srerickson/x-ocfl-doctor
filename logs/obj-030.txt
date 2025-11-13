@@ -1,0 +1,82 @@
+OCFL Object Validation and Repair Log
+======================================
+Object Name: obj-030
+Date: 2025-11-12
+
+STEP 1: INITIAL VALIDATION
+--------------------------
+Command: ocfl validate --object /workspace/objects/obj-030
+Result: INVALID
+
+Validation Error:
+  Code: E060 (Digest mismatch)
+  File: v1/inventory.json
+  Issue: Checksum mismatch for v1/inventory.json.sha512
+  - Calculated checksum: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+  - Expected checksum: cf60208ec99d58e971bc21fdf05356706d5b9cc2af13ed3edae5c0e54fc23a6d93b91c9ec1ccf21f9094ca170ac9c214a005382ed69e71e8aaf87b4619c93ffb
+
+STEP 2: COPY TO REPAIR LOCATION
+-------------------------------
+Command: cp -r /workspace/objects/obj-030 /workspace/repaired/obj-030
+Result: SUCCESS
+Description: Created a working copy of the object for repair operations
+
+STEP 3: ANALYSIS
+----------------
+Examined inventory files in the object:
+- /workspace/repaired/obj-030/inventory.json (root inventory)
+- /workspace/repaired/obj-030/v1/inventory.json (version 1 inventory)
+- /workspace/repaired/obj-030/v2/inventory.json (version 2 inventory)
+
+Root inventory.json properties:
+  - ID: urn:example-2
+  - Type: https://ocfl.io/1.1/spec/#inventory
+  - Digest Algorithm: sha512
+  - Head Version: v2
+  - Content Directory: content
+  - Versions: v1, v2
+
+Root inventory.json checksum calculation:
+  - Calculated: 4c193dae11d4507d37e86c8268e998596ac80a22f77808642e90b3567b39aa6c3842721a33c688d07c704c3fbbe6080382197b4428944922d2f072643dd6db2c
+  - Root inventory.json.sha512 was incorrect
+
+v1 inventory.json checksum calculation:
+  - Calculated: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a
+  - v1/inventory.json.sha512 was incorrect
+
+STEP 4: REPAIRS APPLIED
+-----------------------
+Repair 1: Updated root inventory.json.sha512
+  File: /workspace/repaired/obj-030/inventory.json.sha512
+  Action: Updated checksum to match actual file
+  Old value: [Incorrect checksum from damaged file]
+  New value: 4c193dae11d4507d37e86c8268e998596ac80a22f77808642e90b3567b39aa6c3842721a33c688d07c704c3fbbe6080382197b4428944922d2f072643dd6db2c inventory.json
+  Status: SUCCESS
+
+Repair 2: Updated v1 inventory.json.sha512
+  File: /workspace/repaired/obj-030/v1/inventory.json.sha512
+  Action: Updated checksum to match actual file
+  Old value: cf60208ec99d58e971bc21fdf05356706d5b9cc2af13ed3edae5c0e54fc23a6d93b91c9ec1ccf21f9094ca170ac9c214a005382ed69e71e8aaf87b4619c93ffb inventory.json
+  New value: 032c545b5cb61ce4fafc0cef91fd9895859dcb8f0eb9485f3d5e1a25ccc5caa061345820ceeb99f81be1f0d54df9abcedad654a82c5d7d7922d02bb165ac315a inventory.json
+  Status: SUCCESS
+
+STEP 5: POST-REPAIR VALIDATION
+------------------------------
+Command: ocfl validate --object /workspace/repaired/obj-030
+Result: VALID
+Status: No errors reported
+
+SUMMARY
+=======
+Object Name: obj-030
+Initial Status: INVALID
+Final Status: VALID
+Content Preserved: YES (No files deleted, only checksums corrected)
+
+Repairs Applied:
+1. Corrected root inventory.json.sha512 checksum
+2. Corrected v1/inventory.json.sha512 checksum
+
+Root Cause: Inventory checksum files contained incorrect digest values that didn't match the actual inventory.json files. This could have resulted from incomplete write operations or file corruption.
+
+Result: All validation errors resolved. Object structure and content preserved intact.
